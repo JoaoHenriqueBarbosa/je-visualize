@@ -1,6 +1,6 @@
 ---
 name: visualize
-description: "Use esta skill sempre que o dono pedir para desenhar, diagramar ou visualizar algo que ele precise compreender visualmente — conceitos, sistemas, processos, taxonomias, filosofias, circuitos, qualquer assunto. Gatilhos: 'desenha', 'diagrama', 'visualiza', 'faz um flow', 'quero ver isso', menções ao je-visualize ou a alguma visualização existente (samkhya, eletronica). O resultado vai para o site je-visualize (React Flow + motor de layout próprio), nunca para mermaid/SVG soltos no chat."
+description: "Use esta skill sempre que o dono pedir para desenhar, diagramar ou visualizar algo que ele precise compreender visualmente — conceitos, sistemas, processos, taxonomias, filosofias, circuitos, dados, debates, qualquer assunto. Gatilhos: 'desenha', 'diagrama', 'visualiza', 'faz um flow', 'quero ver isso', menções ao je-visualize ou a alguma visualização existente (samkhya, eletronica). O resultado vai para o site je-visualize (nove tipos de visualização: flows simulados, comparativo, autômato, registros, ciclo, escala, sankey, venn, explodido — escolher o tipo RICO que o assunto pede, nunca empobrecer para flow estático por inércia), jamais mermaid/SVG soltos no chat."
 ---
 
 # visualize — diagramas que viram parte do je-visualize
@@ -147,34 +147,91 @@ Regras aprendidas quebrando:
   sem cor em volta da coluna.
 - Home raiz = `theme-root`, neutra, é índice e não capa. Não tematizar.
 
-## Os outros kinds — quando o assunto não é um flow
+## Escolher o tipo — o assunto manda, e rico vence simples
 
 `VizSpec` é união discriminada; `kind` ausente = flow. Cada kind tem
-renderizador em `src/viz/` e a VizPage despacha sozinha. Escolher pelo
-assunto:
+renderizador em `src/viz/` e a VizPage despacha sozinha.
 
-- `compare` — dois flows, inputs compartilhados por id (série ‖ paralelo).
-- `machine` — estados + eventos como botões + transições. Estados exigem
-  rank/column declarados (transições não ordenam — ciclo é a norma). Botão
-  sem transição aplicável fica mudo, e isso é conteúdo (tattvābhyāsa).
-- `records` — fields + rows + views (table/kanban/gantt): projeções do
-  mesmo dado, nada digitado duas vezes (darsanas).
-- `cycle` — anel + centro opcional, layout polar (oscilador-anel).
-- `scale` — eixo contínuo com faixas e marcas (niveis-logicos).
-- `sankey` — fluxo com quantidade, Recharts com fitas preenchidas
-  (contagem).
-- `venn` — conjuntos aninhados, SVG concêntrico (pramana-escolas).
-- `exploded` — figura em grade CSS + legendas ancoradas por cor (mosfet).
+**A armadilha número um deste projeto agora é a pobreza**: ter nove tipos e
+entregar um flow estático por inércia. Antes de escrever qualquer spec,
+passar o assunto pela bateria — cada "sim" é uma capacidade que o leitor
+perde se você não usar:
 
-Ainda no flow: `steps` dá o passeio narrado (tattvas), e os EdgeKinds
-`supports`/`attacks` dão mapa argumentativo (prova-purusha) — supports
-ordena como flow, attacks é lateral tracejada.
+1. **Algo RESPONDE a algo?** (mudo a entrada, o resto muda) → simulação
+   no flow: `input`/`compute`/`activeWhen`, arestas vivas.
+2. **Há quantidade fluindo, dividindo, somando?** → `sankey`.
+3. **Há estados e acontecimentos que os mudam?** → `machine`.
+4. **Há muitos itens comparáveis entre si?** → `records`.
+5. **O fim volta ao começo?** → `cycle`.
+6. **Existe um eixo contínuo onde a posição É o valor?** → `scale`.
+7. **Categorias se contêm ou se sobrepõem?** → `venn`.
+8. **É um objeto com partes/camadas para apontar?** → `exploded`.
+9. **Dois arranjos respondem diferente à MESMA entrada?** → `compare`.
+10. **Há sinal/série para desenhar no tempo?** → `chart` num cartão.
+11. **É denso, ou tem ordem natural de apresentação?** → `steps`.
+12. **É um debate, uma prova, uma controvérsia?** → `supports`/`attacks`.
+
+Se duas ou mais respondem sim, o assunto pede mais de um tipo — **uma
+coleção madura mistura tipos** (o sāṃkhya tem seis; a eletrônica, cinco).
+Um pedido de "diagrama" quase nunca é pedido de flow estático: é pedido de
+compreensão, e compreensão usa o que houver.
+
+### O que encaixa em cada um (exemplos para destravar, não lista fechada)
+
+- **flow simulado** — tudo que conduz, deriva ou dispara: circuitos;
+  requisitos legais cumulativos (um contrato válido É uma AND); critérios
+  diagnósticos; regras de acentuação; harmonia funcional (escolho o acorde,
+  a função muda); precedência de operadores; fluxo de aprovação; receitas
+  com proporções (dobro a farinha, o resto recalcula).
+- **compare** — duas escolas respondendo à mesma pergunta; dois algoritmos
+  sobre o mesmo dado; duas conjugações do mesmo verbo; dois sistemas
+  jurídicos ante o mesmo caso; a mesma frase em duas análises sintáticas.
+- **machine** — estágios de doença; fases do processo civil; ciclo de vida
+  de inseto; aspecto verbal; estados da matéria com eventos de calor;
+  protocolos (TCP, OAuth); jogos e regras; níveis de meditação com o que
+  avança e o que regride. Botão mudo é doutrina: terminal, irreversível,
+  pré-requisito — a máquina afirma isso sozinha.
+- **records** — elementos químicos; obras de um autor; espécies; imperadores
+  e dinastias; ferramentas de um ofício; vocabulário por família; compassos
+  e andamentos; vinhos por safra. Se tem "N coisas com os mesmos campos", é
+  records — e gantt/kanban vêm de graça com os campos certos.
+- **cycle** — Krebs, água, carbono, nitrogênio; estações; fases da lua;
+  quintas musicais; saṃsāra; ciclo econômico; respiração; realimentação de
+  qualquer espécie onde a volta é o assunto.
+- **scale** — pH; espectro eletromagnético; decibéis; dureza de Mohs;
+  escalas log (potências de dez, magnitude sísmica); faixas etárias ou de
+  renda com marcas legais; datação geológica; zonas de temperatura.
+- **sankey** — orçamento; matriz energética; calorias de um prato; funil de
+  conversão; migração; votos entre turnos; de onde vem e para onde vai
+  qualquer coisa contável. Se o assunto tem um "quanto", a espessura é dele.
+- **venn** — pertencimento que se cruza ou se aninha: empréstimos entre
+  línguas; competências de entes federativos; classificações taxonômicas
+  concorrentes; o que é ao mesmo tempo X e Y (e o que só é X).
+- **exploded** — célula; motor; instrumento musical; camadas de rede (OSI);
+  estratos geológicos; seção de um prédio; anatomia de um soneto; um prato
+  montado. Qualquer coisa que se aponta com o dedo dizendo "isto aqui é".
+- **chart em cartão** — qualquer grandeza no tempo ou por categoria dentro
+  de um diagrama maior: sinal, envelope sonoro, série histórica, resposta a
+  degrau. O instrumento observa nós da simulação via `watch`.
+- **steps** — todo diagrama com mais de ~15 nós merece a pergunta "qual é a
+  ordem de contar isto?". A câmera segue os passos (zoom e pan enquadram o
+  revelado): começa apertado, termina aberto.
+- **supports/attacks** — provas filosóficas; controvérsias científicas;
+  jurisprudência divergente; revisão por pares; qualquer lugar onde a
+  ESTRUTURA do desacordo é o conteúdo.
+
+Referências vivas de cada tipo no próprio repo: portas (sim), tattvas
+(steps), prova-purusha (argumento), serie-vs-paralelo (compare),
+tattvabhyasa (machine), darsanas (records), oscilador-anel (cycle),
+niveis-logicos (scale), contagem (sankey), pramana-escolas (venn), mosfet
+(exploded), osciloscopio (chart).
 
 Estado de leitura na URL, um padrão por kind: ?sim= ?foco= ?estado=
-?vista= ?passo=.
+?vista= ?passo=. Toda configuração é um link — projete o conteúdo sabendo
+que qualquer estado interessante pode ser compartilhado.
 
 Regra de distribuição de conteúdo: o que demonstra máquina nova se
-reparte entre as coleções — não concentrar tudo na eletrônica; se nenhum
+reparte entre as coleções — não concentrar tudo numa só; se nenhum
 assunto encaixar, criar coleção nova.
 
 ## Criar uma visualização nova (coleção)
