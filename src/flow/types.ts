@@ -97,8 +97,17 @@ export interface GroupSpec {
  * `aside`     — relação lateral, não avança camada.
  * `feedback`  — retorno; ignorado na ordenação para não criar ciclo.
  * `illumine`  — presença que não é causal (ātman, puruṣa). Traço pontilhado.
+ * `supports`  — apoio argumentativo; avança camada como `flow` (a premissa
+ *               empurra em direção à conclusão).
+ * `attacks`   — objeção; lateral, tracejada, no vermelho de quem discorda.
  */
-export type EdgeKind = "flow" | "aside" | "feedback" | "illumine";
+export type EdgeKind =
+  | "flow"
+  | "aside"
+  | "feedback"
+  | "illumine"
+  | "supports"
+  | "attacks";
 
 export interface EdgeSpec {
   from: string;
@@ -131,6 +140,13 @@ export interface FlowSpec {
   groups?: GroupSpec[];
   nodes: NodeSpec[];
   edges: EdgeSpec[];
+  /**
+   * O passeio: cada passo declara os nós que ENTRAM (o acumulado é derivado)
+   * e a nota que os apresenta. Com passos declarados o canvas ganha o
+   * stepper; sem, nada muda. Arestas aparecem quando as duas pontas já
+   * entraram.
+   */
+  steps?: { ids: string[]; note: string }[];
 }
 
 /** Retângulo em coordenadas do canvas. */

@@ -143,7 +143,10 @@ export function layout(input: LayoutInput): LayoutResult {
   const rank = new Map<string, number>(
     spec.nodes.map((n) => [n.id, n.rank ?? 0])
   );
-  const flowEdges = spec.edges.filter((e) => kindOf(e) === "flow");
+  // `supports` ordena como `flow`: a premissa empurra rumo à conclusão.
+  const flowEdges = spec.edges.filter(
+    (e) => kindOf(e) === "flow" || kindOf(e) === "supports"
+  );
 
   for (let pass = 0; pass <= spec.nodes.length; pass++) {
     let moved = false;

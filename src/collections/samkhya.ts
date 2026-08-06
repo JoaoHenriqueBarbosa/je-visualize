@@ -10,6 +10,7 @@ import { guna, pramana, kaivalya } from "../flows/small";
 import { tattvabhyasa } from "../flows/viveka";
 import { darsanas } from "../flows/darsanas";
 import { contagem, pramanaEscolas } from "../flows/contagem";
+import { provaPurusha } from "../flows/prova";
 
 export const samkhya: CollectionSpec = {
   slug: "samkhya",
@@ -27,6 +28,7 @@ export const samkhya: CollectionSpec = {
   /** Do problema à cosmologia ao detalhe; a dinâmica fecha. */
   vizes: [
     kaivalya,
+    provaPurusha,
     tattvas,
     contagem,
     guna,

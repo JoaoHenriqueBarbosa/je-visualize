@@ -170,6 +170,7 @@ const run = async () => {
       machineFired: 0,
       recViews: 0,
       geo: 0,
+      walked: 0,
     };
     // Página sem cena ou cena vazia é falha, não sucesso: um dist velho sem
     // data-viz já produziu um "ok · 0 nós" falso-verde aqui.
@@ -362,6 +363,46 @@ const run = async () => {
         }
       }
 
+      // 7b. passeio — avança cada passo de verdade e cobra que a revelação
+      // é cumulativa: o número de cartões visíveis nunca diminui e termina
+      // com todos.
+      const walkMeta = await page.evaluate(
+        (v) => window.__vizRegistry?.[v]?.walk ?? null,
+        viz
+      );
+      if (walkMeta?.steps) {
+        const visible = () =>
+          page.evaluate(
+            (v) =>
+              document.querySelectorAll(
+                `[data-viz="${v}"] .concept:not(.dimmed)`
+              ).length,
+            viz
+          );
+        // Entra no passo 1 e caminha até o fim.
+        let prev = 0;
+        for (let s = 0; s < walkMeta.steps; s++) {
+          await page.click(`[data-viz="${viz}"] [data-walk-next]`);
+          await page.waitForTimeout(80);
+          const now = await visible();
+          if (now < prev)
+            problems.push(
+              `${tagOf(viz)}passeio: passo ${s + 1} revelou menos (${now} < ${prev})`
+            );
+          prev = now;
+        }
+        const total = await page.evaluate(
+          (v) =>
+            document.querySelectorAll(`[data-viz="${v}"] .concept`).length,
+          viz
+        );
+        if (prev !== total)
+          problems.push(
+            `${tagOf(viz)}passeio: último passo mostra ${prev} de ${total} cartões`
+          );
+        totals.walked = walkMeta.steps;
+      }
+
       // 8. geometrias — cada kind síncrono declara suas contagens no
       // registro; a auditoria confere que o DOM tem exatamente aquilo.
       const geoChecks = [
@@ -401,6 +442,7 @@ const run = async () => {
         (totals.machineFired ? ` · mq ${totals.machineFired} eventos` : "") +
         (totals.recViews ? ` · reg ${totals.recViews} vistas` : "") +
         (totals.geo ? ` · geo conferida` : "") +
+        (totals.walked ? ` · passeio ${totals.walked} passos` : "") +
         (scenes.length > 1 ? ` · ${scenes.length} cenas` : "")
     );
     for (const p of problems) console.log(`        · ${p}`);

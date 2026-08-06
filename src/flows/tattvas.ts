@@ -189,6 +189,60 @@ export const tattvas: FlowSpec = {
     ...tanmatra,
     ...mahabhuta,
   ],
+  /**
+   * O passeio: a cosmologia na ordem em que ela acontece. Cada passo lista
+   * só o que entra; o canvas acumula. É o diagrama mais denso do site, e é
+   * exatamente por isso que ele ganhou narração.
+   */
+  steps: [
+    {
+      ids: ["purusha", "prakriti"],
+      note: "Os dois incriados: puruṣa vê e não age, prakṛti age e não vê. Tudo o mais deriva — estes dois não.",
+    },
+    {
+      ids: ["mahat"],
+      note: "O equilíbrio se rompe e surge mahat, a determinação — a superfície onde o reflexo do puruṣa aparece.",
+    },
+    {
+      ids: ["ahamkara"],
+      note: "Ahaṃkāra: o processo impessoal ganha um dono. Tudo abaixo daqui é produto de uma identificação.",
+    },
+    {
+      ids: ["vaikrta", "taijasa", "bhutadi"],
+      note: "O eu-fazedor se reparte pelos guṇas: o lúcido produzirá órgãos, o inerte produzirá matéria, e o ativo só fornece energia aos outros dois.",
+    },
+    {
+      ids: [
+        "manas",
+        "shrotra",
+        "tvac",
+        "caksus",
+        "rasana",
+        "ghrana",
+        "vac",
+        "pani",
+        "pada",
+        "payu",
+        "upastha",
+      ],
+      note: "De vaikṛta, os onze órgãos: manas coordenando cinco portas de percepção e cinco de ação.",
+    },
+    {
+      ids: [
+        "shabda",
+        "sparsha",
+        "rupa",
+        "rasa",
+        "gandha",
+        "akasha",
+        "vayu",
+        "tejas",
+        "ap",
+        "prthivi",
+      ],
+      note: "De bhūtādi, os cinco sutis — e de cada sutil, seu grosseiro. Vinte e três evolutos, mais os dois incriados: vinte e cinco.",
+    },
+  ],
   edges: [
     {
       from: "purusha",

@@ -48,7 +48,9 @@ const strokeFor = (kind: EdgeKind) => {
       return { strokeDasharray: "2 6", strokeWidth: 1.2 };
     case "aside":
       return { strokeDasharray: "0", strokeWidth: 1.4 };
-    default:
+    case "attacks":
+      return { strokeDasharray: "7 3", strokeWidth: 1.6 };
+    default: // flow e supports
       return { strokeDasharray: "0", strokeWidth: 1.7 };
   }
 };
@@ -115,6 +117,40 @@ export default function FlowCanvas({
     [spec, focus]
   );
 
+  // ------------------------------------------------------------- o passeio
+  // step -1 = vista completa; 0..n-1 = passos. O acumulado é derivado: cada
+  // passo declara só o que ENTRA. URL: ?passo=1-based.
+  const steps = spec.steps;
+  const readStep = () => {
+    if (!steps) return -1;
+    const raw = Number(new URLSearchParams(window.location.search).get("passo"));
+    return raw >= 1 && raw <= steps.length ? raw - 1 : -1;
+  };
+  const [step, setStep] = useState(readStep);
+
+  useEffect(() => {
+    setStep(readStep());
+  }, [spec.slug]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const goStep = (next: number) => {
+    setStep(next);
+    const params = new URLSearchParams(window.location.search);
+    if (next >= 0) params.set("passo", String(next + 1));
+    else params.delete("passo");
+    const q = params.toString();
+    history.replaceState(null, "", window.location.pathname + (q ? `?${q}` : ""));
+  };
+
+  const stepSet = useMemo(() => {
+    if (!steps || step < 0) return null;
+    const out = new Set<string>();
+    for (let i = 0; i <= step; i++) steps[i].ids.forEach((id) => out.add(id));
+    return out;
+  }, [steps, step]);
+
+  // Foco e passeio dão esmaecimento; durante um passo, o passeio manda.
+  const dimSet = stepSet ?? focusSet;
+
   // Séries e amostras de um cartão-instrumento. Com `sweep`, cada estado da
   // varredura passa pelo MESMO avaliador da simulação; sem, a fonte é o
   // histórico do que o leitor alternou.
@@ -176,7 +212,7 @@ export default function FlowCanvas({
             active:
               sim.activeIds.includes(n.id) ||
               !!drive?.activeIds?.includes(n.id),
-            dimmed: focusSet ? !focusSet.has(n.id) : false,
+            dimmed: dimSet ? !dimSet.has(n.id) : false,
             chart: chartFor(n),
           },
         },
@@ -198,7 +234,7 @@ export default function FlowCanvas({
         (sim.active && kind === "flow" && !!sim.values[e.from]) ||
         !!drive?.liveEdges?.includes(`${e.from}->${e.to}`);
       const dimmed =
-        focusSet && !(focusSet.has(e.from) && focusSet.has(e.to));
+        dimSet && !(dimSet.has(e.from) && dimSet.has(e.to));
 
       return {
         id: `${e.from}->${e.to}`,
@@ -260,11 +296,12 @@ export default function FlowCanvas({
         : null,
       values: sim.values,
       activeIds: sim.activeIds,
+      walk: spec.steps ? { steps: spec.steps.length } : null,
     };
 
     return { nodes, edges };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spec, measurements, sim.active, sim.values, sim.activeIds, sim.history, focusSet, drive, layoutFn]);
+  }, [spec, measurements, sim.active, sim.values, sim.activeIds, sim.history, dimSet, drive, layoutFn]);
 
   // Sai do registro ao desmontar: numa SPA a entrada sobreviveria à rota.
   useEffect(() => {
@@ -320,6 +357,41 @@ export default function FlowCanvas({
           />
           <Controls showInteractive={false} position="bottom-right" />
         </ReactFlow>
+      )}
+      {steps && (
+        <div className="walk" data-walk>
+          <button
+            type="button"
+            className="walk-btn"
+            disabled={step < 0}
+            onClick={() => goStep(step - 1)}
+            aria-label="passo anterior"
+          >
+            ‹
+          </button>
+          <div className="walk-note">
+            {step < 0 ? (
+              <span className="walk-note-text muted">
+                vista completa — › percorre o diagrama
+              </span>
+            ) : (
+              <span className="walk-note-text">{steps[step].note}</span>
+            )}
+            <span className="walk-count">
+              {step < 0 ? `${steps.length} passos` : `${step + 1}/${steps.length}`}
+            </span>
+          </div>
+          <button
+            type="button"
+            className="walk-btn"
+            data-walk-next
+            disabled={step >= steps.length - 1}
+            onClick={() => goStep(step + 1)}
+            aria-label="próximo passo"
+          >
+            ›
+          </button>
+        </div>
       )}
     </div>
   );
