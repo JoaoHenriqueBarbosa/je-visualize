@@ -19,6 +19,7 @@ import {
   Controls,
   MarkerType,
   ReactFlow,
+  useReactFlow,
   type Edge,
   type Node,
 } from "@xyflow/react";
@@ -61,6 +62,27 @@ export interface CanvasDrive {
   activeIds?: string[];
   /** Arestas vivas forçadas, por id `from->to` — a última transição. */
   liveEdges?: string[];
+}
+
+/**
+ * A câmera do passeio. Vive DENTRO do <ReactFlow> porque é lá que o store
+ * da viewport existe. A cada passo, enquadra o conjunto revelado — a
+ * história começa apertada nos dois incriados e termina aberta no diagrama
+ * inteiro, e voltar à vista completa reenquadra tudo. O leitor continua
+ * podendo passear com o mouse entre um passo e outro: a câmera só age
+ * quando o passo muda.
+ */
+function WalkCamera({ step, ids }: { step: number; ids: string[] | null }) {
+  const rf = useReactFlow();
+  useEffect(() => {
+    rf.fitView({
+      duration: 650,
+      padding: 0.16,
+      nodes: ids?.length ? ids.map((id) => ({ id })) : undefined,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+  return null;
 }
 
 export default function FlowCanvas({
@@ -356,6 +378,12 @@ export default function FlowCanvas({
             className="flow-dots"
           />
           <Controls showInteractive={false} position="bottom-right" />
+          {steps && (
+            <WalkCamera
+              step={step}
+              ids={stepSet ? [...stepSet] : null}
+            />
+          )}
         </ReactFlow>
       )}
       {steps && (
