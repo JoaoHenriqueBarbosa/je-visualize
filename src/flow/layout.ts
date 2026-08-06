@@ -219,7 +219,6 @@ export function layout(input: LayoutInput): LayoutResult {
     colLeft[c] = x;
     x += colW[c] + (c < nCols - 1 ? gapX[c] : 0);
   }
-  const contentW = x + padRight;
 
   const nodes: Record<string, Rect> = {};
   for (const n of spec.nodes) {
@@ -234,23 +233,117 @@ export function layout(input: LayoutInput): LayoutResult {
     };
   }
 
-  // --------------------------------------------------------------- 6. bordas
-  const groups: Record<string, Rect> = {};
-  for (const g of spec.groups ?? []) {
-    const members = spec.nodes.filter((n) => n.group === g.id);
-    if (!members.length) continue;
-    const rects = members.map((m) => nodes[m.id]);
-    const x0 = Math.min(...rects.map((r) => r.x)) - GROUP_PAD;
-    const y0 = Math.min(...rects.map((r) => r.y)) - GROUP_PAD;
-    const x1 = Math.max(...rects.map((r) => r.x + r.w)) + GROUP_PAD;
-    const y1 = Math.max(...rects.map((r) => r.y + r.h)) + GROUP_PAD;
-    groups[g.id] = {
-      x: Math.round(x0),
-      y: Math.round(y0),
-      w: Math.round(x1 - x0),
-      h: Math.round(y1 - y0),
-    };
+  // ------------------------------------------------------- 6. molduras finais
+  // Envolve os membros já posicionados. Chamada de novo depois da compactação,
+  // porque a moldura é sempre derivada — nunca uma caixa com vida própria.
+  const wrapGroups = (): Record<string, Rect> => {
+    const out: Record<string, Rect> = {};
+    for (const g of spec.groups ?? []) {
+      const members = spec.nodes.filter((n) => n.group === g.id);
+      if (!members.length) continue;
+      const rects = members.map((m) => nodes[m.id]);
+      const x0 = Math.min(...rects.map((r) => r.x)) - GROUP_PAD;
+      const y0 = Math.min(...rects.map((r) => r.y)) - GROUP_PAD;
+      const x1 = Math.max(...rects.map((r) => r.x + r.w)) + GROUP_PAD;
+      const y1 = Math.max(...rects.map((r) => r.y + r.h)) + GROUP_PAD;
+      out[g.id] = {
+        x: Math.round(x0),
+        y: Math.round(y0),
+        w: Math.round(x1 - x0),
+        h: Math.round(y1 - y0),
+      };
+    }
+    return out;
+  };
+
+  // -------------------------------------------------- 7. compactação lateral
+  // A largura de coluna é o máximo global da coluna, então um cartão `full`
+  // numa camada infla a coluna inteira e os `compact` de outras camadas ficam
+  // centrados em sobra. Aqui essa sobra é recolhida: para cada fronteira entre
+  // colunas, mede-se a folga real entre o que está à esquerda e o que está à
+  // direita — contando só pares que de fato se cruzam na vertical — e o bloco
+  // à direita desliza para dentro dessa folga.
+  //
+  // O corredor reservado em `gapX` é o piso e nunca é invadido: é lá que moram
+  // os rótulos de aresta e o padding das molduras. A ordem das colunas e o
+  // alinhamento vertical dentro de cada coluna ficam intactos, porque a coluna
+  // inteira desliza junto.
+  const overlapY = (a: Rect, b: Rect) =>
+    a.y < b.y + b.h && b.y < a.y + a.h;
+
+  for (let c = 0; c < nCols - 1; c++) {
+    type Obstacle = { rect: Rect; minCol: number; maxCol: number };
+    const obstacles: Obstacle[] = spec.nodes.map((n) => ({
+      rect: nodes[n.id],
+      minCol: colOf(n.id),
+      maxCol: colOf(n.id),
+    }));
+    for (const [id, rect] of Object.entries(wrapGroups())) {
+      const cols = groupCols.get(id);
+      if (cols) obstacles.push({ rect, minCol: cols[0], maxCol: cols[1] });
+    }
+
+    const left = obstacles.filter((o) => o.maxCol <= c);
+    const right = obstacles.filter((o) => o.minCol >= c + 1);
+    if (!left.length || !right.length) continue;
+
+    const required = gapX[c];
+    let slack = Infinity;
+    for (const l of left) {
+      for (const r of right) {
+        if (!overlapY(l.rect, r.rect)) continue;
+        slack = Math.min(slack, r.rect.x - (l.rect.x + l.rect.w) - required);
+      }
+    }
+
+    // Nenhum par se cruza na vertical: nada colide de fato nessa fronteira,
+    // então a folga é a distância entre as extremidades ocupadas.
+    if (!Number.isFinite(slack)) {
+      const edgeL = Math.max(...left.map((o) => o.rect.x + o.rect.w));
+      const edgeR = Math.min(...right.map((o) => o.rect.x));
+      slack = edgeR - edgeL - required;
+    }
+
+    // Um rótulo horizontal é uma peça só e pode atravessar várias fronteiras.
+    // O corredor foi reservado fronteira a fronteira, mas quem precisa caber é
+    // o vão inteiro entre as duas pontas: encolher qualquer trecho do caminho
+    // espreme o rótulo contra os cartões. Por isso a folga é limitada também
+    // pela distância que cada rótulo em travessia ainda precisa manter.
+    for (const e of spec.edges) {
+      const label = edgeLabelSizes[edgeKey(e)];
+      if (!label) continue;
+      const c0 = colOf(e.from);
+      const c1 = colOf(e.to);
+      if (c0 === c1) continue;
+      if (c < Math.min(c0, c1) || c >= Math.max(c0, c1)) continue;
+
+      const a = nodes[e.from];
+      const b = nodes[e.to];
+      if (!a || !b) continue;
+      const near = a.x < b.x ? a : b;
+      const far = a.x < b.x ? b : a;
+      const span = far.x - (near.x + near.w);
+      slack = Math.min(slack, span - (label.w + LABEL_AIR * 2));
+    }
+
+    const shift = Math.floor(Math.max(0, slack));
+    if (shift === 0) continue;
+
+    for (let k = c + 1; k < nCols; k++) colLeft[k] -= shift;
+    for (const n of spec.nodes) {
+      if (colOf(n.id) >= c + 1) nodes[n.id].x -= shift;
+    }
   }
+
+  const groups = wrapGroups();
+
+  const occupied = [
+    ...Object.values(nodes),
+    ...Object.values(groups),
+  ];
+  const contentW = occupied.length
+    ? Math.max(...occupied.map((r) => r.x + r.w)) + padRight
+    : padLeft + padRight;
 
   const edges: PlacedEdge[] = spec.edges.map((e) => {
     const a = nodes[e.from];
