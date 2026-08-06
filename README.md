@@ -55,6 +55,16 @@ bun install
 bun dev
 ```
 
+Do zero, incluindo bun e o chromium da auditoria:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/JoaoHenriqueBarbosa/je-visualize/main/scripts/setup.sh | bash
+```
+
+## Skill
+
+`skill/SKILL.md` é a skill de agente do projeto: todo o conhecimento operacional — contrato, motor, temas, ciclo de verificação, armadilhas conhecidas — para trabalhar aqui a partir de um chat sem histórico.
+
 ## Stack
 
 Bun · Vite · React 19 · TypeScript · React Router · [@xyflow/react](https://reactflow.dev) · Playwright
