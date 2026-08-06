@@ -12,13 +12,25 @@
  * e mais uma que o motor precisa garantir para os rótulos serem legíveis:
  *
  *   4. nenhum rótulo de aresta cai por cima de um cartão
+ *
+ * Uso:
+ *   bun run audit                  todas as visualizações
+ *   bun run audit samkhya          só uma
+ *   bun run audit samkhya eletronica
+ *
+ * Screenshots caem em shots/<visualização>/<diagrama>.png.
  */
 
 import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
 
 const BASE = process.env.BASE ?? "http://localhost:4173";
-/** Descoberto navegando, não declarado: o audit não desatualiza sozinho. */
+/**
+ * Escopo: `bun run audit` roda tudo, `bun run audit eletronica` roda só ela.
+ * Uma visualização não toca na outra, então auditar a suíte inteira para
+ * mexer numa só é desperdício — e o ruído esconde o que importa.
+ */
+const ONLY = process.argv.slice(2).filter((a) => !a.startsWith("-"));
 const OUT = "shots";
 
 /** Folga tolerada: bordas encostando não é sobreposição. */
@@ -80,18 +92,34 @@ const run = async () => {
   let failures = 0;
 
   await page.goto(BASE + "/", { waitUntil: "networkidle" });
-  await page.screenshot({ path: `${OUT}/home.png`, fullPage: true });
 
   // Rastreia a raiz para achar as coleções, e cada coleção para achar os
   // diagramas. Assim uma visualização nova entra na auditoria sozinha.
-  const collections = await page.$$eval(".coll-card", (as) =>
+  const all = await page.$$eval(".coll-card", (as) =>
     as.map((a) => a.getAttribute("href").replace(/^\//, ""))
   );
 
+  const unknown = ONLY.filter((c) => !all.includes(c));
+  if (unknown.length) {
+    console.error(`Não há visualização: ${unknown.join(", ")}`);
+    console.error(`Disponíveis: ${all.join(", ")}`);
+    await browser.close();
+    process.exit(2);
+  }
+
+  const collections = ONLY.length ? all.filter((c) => ONLY.includes(c)) : all;
+
+  // A home só é fotografada quando o escopo é o site inteiro: ela não
+  // pertence a nenhuma visualização e não muda quando uma delas muda.
+  if (!ONLY.length) {
+    await page.screenshot({ path: `${OUT}/home.png`, fullPage: true });
+  }
+
   const routes = [];
   for (const c of collections) {
+    mkdirSync(`${OUT}/${c}`, { recursive: true });
     await page.goto(`${BASE}/${c}`, { waitUntil: "networkidle" });
-    await page.screenshot({ path: `${OUT}/${c}.png`, fullPage: true });
+    await page.screenshot({ path: `${OUT}/${c}/_index.png`, fullPage: true });
     const found = await page.$$eval(".flow-card", (as) =>
       as.map((a) => a.getAttribute("href").replace(/^\//, ""))
     );
@@ -135,10 +163,7 @@ const run = async () => {
         if (overlaps(l, n))
           problems.push(`rótulo "${l.id}" por cima do cartão ${n.id}`);
 
-    await page.screenshot({
-      path: `${OUT}/${slug.replace(/\//g, "-")}.png`,
-      fullPage: true,
-    });
+    await page.screenshot({ path: `${OUT}/${slug}.png`, fullPage: true });
 
     const tag = problems.length ? "FALHA" : "ok   ";
     console.log(
@@ -151,8 +176,11 @@ const run = async () => {
   }
 
   await browser.close();
+  const escopo = ONLY.length ? ONLY.join(", ") : "todas as visualizações";
   console.log(
-    failures ? `\n${failures} problema(s) geométrico(s).` : "\nGeometria limpa."
+    failures
+      ? `\n${failures} problema(s) geométrico(s) — ${escopo}.`
+      : `\nGeometria limpa — ${escopo}.`
   );
   process.exit(failures ? 1 : 0);
 };

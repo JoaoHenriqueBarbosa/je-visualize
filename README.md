@@ -12,6 +12,14 @@ Visualizações construídas sob encomenda. Cada assunto pedido vira uma **cole�
 
 **sāṃkhya** — cinco diagramas: kaivalya, os 25 tattvas, triguṇa, antaḥkaraṇa, pramāṇa.
 
+**eletrônica** — dois diagramas: porta AND e porta OR, lidas pela topologia do circuito.
+
+## Estilo
+
+`src/styles/globals.css` só tem tamanho — escala de espaço, corpo de texto, altura de linha, raio, largura de cartão. Nenhuma cor, nenhuma família tipográfica. As larguras de cartão moram lá porque não são decoração: o motor mede os cartões no DOM antes de posicionar.
+
+Aparência é tema escopado por classe, declarado no spec da coleção (`theme: "theme-eletronica"`). `pages.css` e `flow.css` são estrutura pura sobre variáveis; os temas as preenchem. Duas coleções dividem motor, estrutura e métrica sem se parecerem em nada.
+
 ## Como se escreve um diagrama
 
 O spec é declarativo e nunca contém pixel. O autor descreve nós, arestas e grupos; o único controle espacial é topológico — `column` (faixa vertical, 0 é o eixo) e `rank` (fixa a camada quando nenhuma aresta a deriva). Arestas têm quatro tipos: `flow` avança camada e define a ordenação, `aside` é lateral, `feedback` sai da ordenação para não criar ciclo, `illumine` é presença não-causal.
@@ -28,10 +36,15 @@ Os cartões são medidos no DOM com o CSS real antes de qualquer decisão de pos
 
 ```bash
 bun run build && bun run preview   # num terminal
-bun run audit                      # noutro
+
+bun run audit                      # noutro: tudo
+bun run audit eletronica           # só uma visualização
+bun run audit samkhya eletronica   # algumas
 ```
 
-Playwright rastreia a raiz para achar as coleções e cada coleção para achar os diagramas — visualização nova entra sozinha. Lê as caixas reais do DOM e reprova cartão sobre cartão, moldura que não contém membro, moldura que invade estranho e rótulo por cima de cartão. Screenshots caem em `shots/`.
+Playwright rastreia a raiz para achar as coleções e cada coleção para achar os diagramas — visualização nova entra sozinha, sem cadastro em lugar nenhum. Lê as caixas reais do DOM e reprova cartão sobre cartão, moldura que não contém membro, moldura que invade estranho e rótulo por cima de cartão.
+
+A auditoria é escopável porque uma visualização não toca na outra: mexer numa não pede rodar a suíte inteira. Screenshots caem em `shots/<visualização>/<diagrama>.png`.
 
 Screenshot é prova fraca: mostra que algo foi desenhado, não que está certo.
 
