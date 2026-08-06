@@ -179,6 +179,15 @@
   cursor: default;
 }
 
+/* O React Flow pinta todo nó do tipo `group` com um cinza claro próprio, que
+   passava por cima de `--frame-bg` e devolvia um retângulo leitoso em cima do
+   fundo dos dois temas. A moldura é da visualização: quem decide a tinta dela
+   é `.group-frame`, e aqui só se desmancha o default da biblioteca. */
+.react-flow__node-group {
+  background: transparent;
+  border: 0;
+}
+
 /* Rótulo de aresta: o React Flow desenha em SVG, mas quem manda é o tema.
    O corpo e a família precisam bater com `.edge-label`, que é o que o motor
    mede — divergir aqui é reservar corredor de um tamanho e desenhar outro. */

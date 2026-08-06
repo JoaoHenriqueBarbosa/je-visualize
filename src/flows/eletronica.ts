@@ -13,13 +13,25 @@
 
 import type { FlowSpec, NodeSpec } from "../flow/types";
 
+/**
+ * Cor por função, e não por decoração — mesma regra da paleta do sāṃkhya:
+ * o accent é identidade do papel que a peça cumpre e vale nos dois diagramas.
+ *
+ * A e B têm cores diferentes de propósito. São sinais independentes, e a
+ * primeira versão desta coleção pintava tudo do mesmo verde — o desenho dizia
+ * "isto é tudo a mesma coisa" justo onde a independência das entradas é o que
+ * gera as quatro linhas da tabela. A porta é o cobre da trilha, a saída é o
+ * LED que acende, e conduz/não conduz usa a única distinção que uma bancada
+ * faz sem precisar pensar.
+ */
 const E = {
-  entrada: "#5f9c7b",
-  porta: "#8fe0b0",
-  saida: "#d6f5e3",
-  falso: "#3f6b55",
-  verdade: "#8fe0b0",
-  nota: "#4f7f68",
+  entradaA: "#4ec9e6",
+  entradaB: "#a68cf0",
+  porta: "#e0a44e",
+  saida: "#7ee787",
+  falso: "#d9544d",
+  verdade: "#56d364",
+  nota: "#8aa79a",
 };
 
 /** As quatro linhas da tabela, como fileira de irmãos no rank indicado. */
@@ -56,7 +68,7 @@ const entradas: NodeSpec[] = [
     gloss: "0 ou 1",
     detail:
       "Um nível de tensão lido como um de dois estados. Perto do terra é 0, perto da alimentação é 1; a faixa do meio é indefinida e o circuito é desenhado para não ficar nela.",
-    accent: E.entrada,
+    accent: E.entradaA,
     rank: 0,
     column: -1,
   },
@@ -67,7 +79,7 @@ const entradas: NodeSpec[] = [
     gloss: "0 ou 1",
     detail:
       "A segunda entrada, independente da primeira. Duas entradas binárias dão quatro combinações — e é por isso que a tabela verdade de uma porta de duas entradas tem sempre quatro linhas.",
-    accent: E.entrada,
+    accent: E.entradaB,
     rank: 0,
     column: 1,
   },
@@ -131,8 +143,8 @@ export const portaAnd: FlowSpec = {
     ...tabela(3, "∧", [0, 0, 0, 1]),
   ],
   edges: [
-    { from: "a", to: "porta", kind: "flow", accent: E.entrada },
-    { from: "b", to: "porta", kind: "flow", accent: E.entrada },
+    { from: "a", to: "porta", kind: "flow", accent: E.entradaA },
+    { from: "b", to: "porta", kind: "flow", accent: E.entradaB },
     {
       from: "porta",
       to: "saida",
@@ -202,8 +214,8 @@ export const portaOr: FlowSpec = {
     ...tabela(3, "∨", [0, 1, 1, 1]),
   ],
   edges: [
-    { from: "a", to: "porta", kind: "flow", accent: E.entrada },
-    { from: "b", to: "porta", kind: "flow", accent: E.entrada },
+    { from: "a", to: "porta", kind: "flow", accent: E.entradaA },
+    { from: "b", to: "porta", kind: "flow", accent: E.entradaB },
     {
       from: "porta",
       to: "saida",

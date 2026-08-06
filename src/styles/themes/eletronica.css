@@ -1,9 +1,22 @@
 /**
- * Tema eletrônica. Não é o mesmo assunto e não deve ser a mesma coisa de
- * olhar: fundo de placa, monoespaçada, verde de fósforo, cantos retos.
+ * Tema eletrônica — a placa, não o terminal.
  *
- * Serve de prova de que o escopo funciona — os dois temas dividem motor,
- * estrutura e tokens de tamanho, e não se parecem em nada.
+ * A primeira versão era um terminal de fósforo: um verde só, do fundo ao
+ * texto ao filete de cada cartão. Lia como esquemático, mas o monocromático
+ * apagava justo o que o assunto tem de informação — sinais independentes,
+ * conduz contra não conduz — e deixava o desenho sem hierarquia: tudo à mesma
+ * distância do olho.
+ *
+ * Agora a referência é a placa vista de perto: máscara de solda escura,
+ * serigrafia clara, cobre nas trilhas e nas legendas, e o brilho do que está
+ * energizado. A policromia entra pelos accents (que são dado do flow, em
+ * flows/eletronica.ts) e o tema dá a matéria em volta deles — profundidade de
+ * fundo, relevo de componente, halo de coisa acesa.
+ *
+ * Nada aqui mexe em métrica: padding, corpo de texto e largura de cartão
+ * continuam sendo os de globals.css, porque o motor mede os cartões antes de
+ * posicionar e qualquer um desses valores mudaria o layout inteiro. Cor,
+ * sombra e brilho não movem uma caixa.
  */
 
 .theme-eletronica {
@@ -11,32 +24,53 @@
   --font-display: var(--font-body);
   --font-script: var(--font-body);
 
-  --bg: #06100c;
-  --ink: #d6f5e3;
-  --ink-soft: #7fbf9c;
-  --body: #7d9c8b;
-  --dim: #6f9481;
-  --faint: #44685a;
-  --line: #17301f;
-  --line-hover: #2c5c3d;
+  --bg: #071411;
+  --ink: #e6f4ec;
+  --ink-soft: #a8cbb8;
+  --body: #94b6a4;
+  --dim: #7ea394;
+  --faint: #56796a;
+  --line: #1b3a2a;
+  --line-hover: #3f7a58;
 
-  --card-bg: #0b1a13;
-  --card-bg-hover: #10281c;
-  --card-shadow: none;
+  --card-bg: #0c1f18;
+  --card-bg-hover: #123026;
+  /* Relevo de componente sobre a placa: sombra funda embaixo, fio de luz na
+     aresta de cima. É o que tira os cartões do plano do fundo. */
+  --card-shadow: 0 14px 30px -20px #000, inset 0 1px 0 rgba(190, 255, 220, 0.05);
   --card-radius: 0;
 
-  --rule: #1b3626;
-  --rule-strong: #2c5c3d;
+  --rule: #1e3d2c;
+  --rule-strong: #366b4d;
 
-  --frame-border: #244434;
+  /* A moldura é área serigrafada: cobre discreto, não mais verde. */
+  --frame-border: #6b5426;
   --frame-style: solid;
-  --frame-bg: rgba(120, 255, 180, 0.012);
-  --legend: #5f9c7b;
-  --legend-dim: #3f6b55;
-  --edge-ink: #79b797;
+  --frame-bg: rgba(224, 164, 78, 0.028);
+  --legend: #c9a86a;
+  --legend-dim: #7d7050;
+
+  --edge-ink: #a5c9b6;
+  --dots: #1c3a2a;
 
   /* Monoespaçada não tem itálico decente; e esquemático não comenta. */
   --gloss-style: normal;
+}
+
+/* Fundo de placa: a cor chapada de `--bg` continua sendo a verdade — os
+   rótulos de aresta e as legendas de moldura pintam o próprio fundo com ela
+   para abrir buraco na linha, e destoariam se o gradiente fosse forte. Estes
+   dois halos são só profundidade, quase no limite do perceptível. */
+.theme-eletronica.page {
+  background-image:
+    radial-gradient(120% 75% at 50% 0%, rgba(86, 211, 132, 0.05), transparent 62%),
+    radial-gradient(110% 70% at 50% 100%, rgba(224, 164, 78, 0.035), transparent 62%);
+  background-attachment: fixed;
+}
+
+.theme-eletronica ::selection {
+  background: rgba(78, 201, 230, 0.25);
+  color: var(--ink);
 }
 
 /* Cantos retos até nos cartões arredondados: aqui nada é orgânico. */
@@ -52,9 +86,37 @@
   text-transform: uppercase;
 }
 
+/* O símbolo é a única coisa energizada do cartão, e brilha na cor do próprio
+   accent — `currentColor` porque quem pinta o script é o dado do flow, não o
+   tema. Cravar uma cor aqui devolveria o monocromático pela porta dos fundos. */
+.theme-eletronica .concept-script {
+  text-shadow: 0 0 14px color-mix(in srgb, currentColor 40%, transparent);
+}
+
 .theme-eletronica .flow-card,
 .theme-eletronica .coll-card {
   border-radius: 0;
+}
+
+/* Filete de cobre no card do diagrama: a lista também é placa. */
+.theme-eletronica .flow-card {
+  border-left-color: #8a6f34;
+}
+
+.theme-eletronica .flow-card:hover {
+  border-color: var(--line-hover);
+  border-left-color: var(--legend);
+}
+
+/* Sem grafia nativa não há h1 na página da coleção, e a linha do subtítulo
+   acaba sendo o nome do assunto. Ela merece a tinta do texto, não a da nota. */
+.theme-eletronica .site-sub {
+  color: var(--ink-soft);
+}
+
+.theme-eletronica .flow-card-script {
+  color: var(--ink);
+  text-shadow: 0 0 16px rgba(126, 231, 135, 0.22);
 }
 
 .theme-eletronica .group-legend-name {
