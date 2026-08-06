@@ -37,7 +37,7 @@ const karmendriya = row(6, -2, "karma", P.manas, [
   ["upastha", "उपस्थ", "upastha", "geração"],
 ]);
 
-const tanmatra = row(7, 4, "tanmatra", P.tanmatra, [
+const tanmatra = row(5, 4, "tanmatra", P.tanmatra, [
   ["shabda", "शब्द", "śabda", "som"],
   ["sparsha", "स्पर्श", "sparśa", "tato"],
   ["rupa", "रूप", "rūpa", "forma"],
@@ -45,7 +45,7 @@ const tanmatra = row(7, 4, "tanmatra", P.tanmatra, [
   ["gandha", "गन्ध", "gandha", "odor"],
 ]);
 
-const mahabhuta = row(8, 4, "bhuta", P.bhuta, [
+const mahabhuta = row(6, 4, "bhuta", P.bhuta, [
   ["akasha", "आकाश", "ākāśa", "espaço"],
   ["vayu", "वायु", "vāyu", "ar"],
   ["tejas", "तेजस्", "tejas", "fogo"],
@@ -171,7 +171,7 @@ export const tattvas: FlowSpec = {
         "Conta como órgão de percepção e de ação ao mesmo tempo. Coordena as dez portas; sem ele, os sentidos entregam dado que ninguém junta.",
       accent: P.manas,
       rank: 4,
-      column: -4,
+      column: -2,
     },
     ...jnanendriya,
     ...karmendriya,
