@@ -28,3 +28,4 @@ shots/
 
 # screenshots da auditoria: gerados, não versionados
 shots/
+.claude/
