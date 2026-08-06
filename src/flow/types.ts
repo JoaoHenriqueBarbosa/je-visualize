@@ -19,10 +19,10 @@ export type Side = "t" | "b" | "l" | "r";
 
 export interface NodeSpec {
   id: string;
-  /** Grafia devanāgarī, opcional. */
-  devanagari?: string;
-  /** Transliteração IAST — é o rótulo principal. */
-  iast: string;
+  /** Grafia nativa ou símbolo, opcional: devanāgarī, glifo, notação. */
+  script?: string;
+  /** Nome do nó — é o rótulo principal. */
+  label: string;
   /** Termo técnico ou tradução curta, em itálico sob o nome. */
   gloss?: string;
   /** Parágrafo explicativo. Ausente em nós compactos. */
@@ -70,7 +70,7 @@ export interface EdgeSpec {
 export interface FlowSpec {
   slug: string;
   title: string;
-  devanagari: string;
+  script?: string;
   /** Uma linha sob o título, no cabeçalho da página do flow. */
   subtitle: string;
   /** Parágrafo do card na home. */

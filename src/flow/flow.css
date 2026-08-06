@@ -1,3 +1,12 @@
+/**
+ * Estrutura do canvas — sem cor e sem família tipográfica próprias.
+ *
+ * Tudo que é aparência vem de variáveis que o tema da visualização define.
+ * Um tema pode trocar o cartão inteiro sem que este arquivo mude, e é isso
+ * que permite eletrônica e sāṃkhya dividirem o mesmo motor sem parecerem a
+ * mesma coisa.
+ */
+
 /* Camada de medição: fora da tela, mas com layout real. `visibility:hidden`
    não serve — precisa participar do fluxo para ter caixa medível. */
 .measure-stage {
@@ -10,7 +19,7 @@
 
 .measure-item {
   display: inline-block;
-  margin: 4px;
+  margin: var(--sp-1);
   vertical-align: top;
 }
 
@@ -23,68 +32,71 @@
 /* ---------------------------------------------------------------- cartões */
 
 .concept {
-  background: #191713;
-  border: 1px solid;
-  border-left-width: 3px;
-  border-radius: 3px;
-  padding: 13px 15px 14px;
-  box-shadow: 0 12px 28px -16px #000;
+  background: var(--card-bg);
+  border: var(--bw) solid;
+  border-left-width: var(--bw-accent);
+  border-radius: var(--card-radius, var(--radius-sm));
+  padding: var(--card-pad-y) var(--card-pad-x);
+  box-shadow: var(--card-shadow, none);
+  font-family: var(--font-body);
 }
 
 .concept.full {
-  width: 252px;
+  width: var(--card-w-full);
 }
 
 .concept.compact {
-  width: 164px;
-  padding: 11px 13px 12px;
+  width: var(--card-w-compact);
+  padding: var(--sp-3) var(--sp-3);
 }
 
 .concept.round {
   border-radius: 46% / 38%;
-  border-left-width: 1px;
-  padding: 22px 24px;
+  border-left-width: var(--bw);
+  padding: var(--sp-5) var(--sp-6);
   text-align: center;
 }
 
-.concept-deva {
-  font-size: 20px;
-  line-height: 1.25;
+.concept-script {
+  font-size: var(--fs-xl);
+  line-height: var(--lh-tight);
+  font-family: var(--font-script, var(--font-body));
 }
 
-.concept.compact .concept-deva {
-  font-size: 17px;
+.concept.compact .concept-script {
+  font-size: var(--fs-lg);
 }
 
-.concept-iast {
-  margin-top: 3px;
-  font-size: 14.5px;
-  letter-spacing: 0.05em;
-  color: #e8e2d4;
+.concept-label {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-md);
+  letter-spacing: var(--ls-wide);
+  color: var(--ink);
+  font-family: var(--font-display, var(--font-body));
 }
 
-.concept.compact .concept-iast {
-  font-size: 13px;
+.concept.compact .concept-label {
+  font-size: var(--fs-sm);
 }
 
 .concept-gloss {
-  margin-top: 5px;
-  font-size: 11.5px;
-  font-style: italic;
-  color: #8f887a;
+  margin-top: var(--sp-1);
+  font-size: var(--fs-xs);
+  font-style: var(--gloss-style, italic);
+  color: var(--dim);
 }
 
 .concept-detail {
-  margin-top: 9px;
-  padding-top: 9px;
-  border-top: 1px solid #2b2822;
-  font-size: 11.5px;
-  line-height: 1.52;
-  color: #a8a193;
+  margin-top: var(--sp-2);
+  padding-top: var(--sp-2);
+  border-top: var(--bw) solid var(--rule);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-normal);
+  color: var(--body);
 }
 
 .concept.round .concept-detail {
-  border-top-color: #3a352e;
+  border-top-color: var(--rule-strong, var(--rule));
 }
 
 /* --------------------------------------------------------------- molduras */
@@ -92,23 +104,24 @@
 .group-frame {
   width: 100%;
   height: 100%;
-  border: 1px dashed #322d27;
-  border-radius: 6px;
-  background: rgba(255, 249, 232, 0.006);
+  border: var(--bw) var(--frame-style, dashed) var(--frame-border);
+  border-radius: var(--radius-lg);
+  background: var(--frame-bg, transparent);
   position: relative;
 }
 
 .group-legend {
   position: absolute;
   top: 0;
-  left: 24px;
+  left: var(--sp-5);
   transform: translateY(-50%);
-  background: #100f0d;
-  padding: 0 11px;
+  background: var(--bg);
+  padding: 0 var(--sp-3);
   display: flex;
   align-items: baseline;
-  gap: 9px;
+  gap: var(--sp-2);
   white-space: nowrap;
+  font-family: var(--font-display, var(--font-body));
 }
 
 /* Na camada de medição a legenda não é absoluta — precisa ter caixa. */
@@ -118,25 +131,26 @@
 }
 
 .group-legend-name {
-  font-size: 12.5px;
-  letter-spacing: 0.15em;
+  font-size: var(--fs-sm);
+  letter-spacing: var(--ls-widest);
   text-transform: uppercase;
-  color: #7c7568;
+  color: var(--legend);
 }
 
 .group-legend-sub {
-  font-size: 11.5px;
-  font-style: italic;
-  color: #56514a;
+  font-size: var(--fs-xs);
+  font-style: var(--gloss-style, italic);
+  color: var(--legend-dim);
 }
 
 /* --------------------------------------------------------------- arestas */
 
 .edge-label {
-  font-size: 11.5px;
-  font-style: italic;
+  font-size: var(--fs-xs);
+  font-style: var(--gloss-style, italic);
   white-space: nowrap;
-  color: #b5ae9f;
+  color: var(--edge-ink);
+  font-family: var(--font-body);
 }
 
 .anchor {
@@ -152,15 +166,33 @@
 /* ------------------------------------------------------------ react flow */
 
 .react-flow__controls-button {
-  background: #191713;
-  border-bottom: 1px solid #2b2822;
-  fill: #8f887a;
+  background: var(--card-bg);
+  border-bottom: var(--bw) solid var(--rule);
+  fill: var(--dim);
 }
 
 .react-flow__controls-button:hover {
-  background: #241f1a;
+  background: var(--card-bg-hover, var(--card-bg));
 }
 
 .react-flow__node {
   cursor: default;
+}
+
+/* Rótulo de aresta: o React Flow desenha em SVG, mas quem manda é o tema.
+   O corpo e a família precisam bater com `.edge-label`, que é o que o motor
+   mede — divergir aqui é reservar corredor de um tamanho e desenhar outro. */
+.react-flow__edge-text {
+  fill: var(--edge-ink);
+  font-size: var(--fs-xs);
+  font-style: var(--gloss-style, italic);
+  font-family: var(--font-body);
+}
+
+.react-flow__edge-textbg {
+  fill: var(--bg);
+}
+
+.flow-dots circle {
+  fill: var(--dots, var(--line));
 }

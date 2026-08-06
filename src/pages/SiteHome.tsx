@@ -3,7 +3,8 @@ import { collections } from "../collections";
 
 export default function SiteHome() {
   return (
-    <div className="page site-home">
+    <div className="page site-home theme-root">
+      <div className="wrap">
       <header className="root-head">
         <h1>je&#8203;-visualize</h1>
         <p className="root-sub">
@@ -17,8 +18,8 @@ export default function SiteHome() {
           <li key={c.slug}>
             <Link to={`/${c.slug}`} className="coll-card">
               <span className="coll-card-head">
-                {c.devanagari && (
-                  <span className="coll-card-deva">{c.devanagari}</span>
+                {c.script && (
+                  <span className="coll-card-script">{c.script}</span>
                 )}
                 <span className="coll-card-title">{c.title}</span>
               </span>
@@ -36,6 +37,7 @@ export default function SiteHome() {
         O esquema declara relações, nunca coordenadas. O motor mede os cartões
         no DOM e decide onde tudo cabe.
       </footer>
+      </div>
     </div>
   );
 }

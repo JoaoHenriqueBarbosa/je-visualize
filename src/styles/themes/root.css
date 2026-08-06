@@ -1,0 +1,60 @@
+/**
+ * Tema da raiz. Não pertence a assunto nenhum e não deve parecer que
+ * pertence: grafite quase neutro, geométrica sem serifa, escala curta.
+ * O oposto do dramático — é um índice, não uma capa.
+ */
+
+.theme-root {
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-display: var(--font-body);
+  --font-script: "Noto Serif Devanagari", "Iowan Old Style", Georgia, serif;
+
+  --bg: #0b0b0c;
+  --ink: #f0f0f1;
+  --ink-soft: #9a9aa1;
+  --body: #85858d;
+  --dim: #75757d;
+  --faint: #55555c;
+  --line: #212125;
+  --line-hover: #3d3d45;
+
+  --card-bg: #121214;
+  --card-bg-hover: #17171a;
+
+  /* Sem itálico: a raiz não comenta, ela lista. */
+  --gloss-style: normal;
+}
+
+.theme-root .root-head h1 {
+  font-size: var(--fs-xl);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+.theme-root .coll-card {
+  position: relative;
+}
+
+/* Filete que acende na borda esquerda no hover — o único gesto do tema. */
+.theme-root .coll-card::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  bottom: -1px;
+  width: 2px;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  background: #4d4d57;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.theme-root .coll-card:hover::before {
+  opacity: 1;
+}
+
+.theme-root .coll-card-title {
+  letter-spacing: var(--ls-wider);
+  font-size: var(--fs-sm);
+}

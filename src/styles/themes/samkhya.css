@@ -1,0 +1,33 @@
+/**
+ * Tema sāṃkhya. Preto quente e serifa antiga: o registro do assunto.
+ * É a aparência que o projeto tinha quando ainda era só isto.
+ */
+
+.theme-samkhya {
+  --font-body: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-display: var(--font-body);
+  --font-script: "Noto Serif Devanagari", var(--font-body);
+
+  --bg: #100f0d;
+  --ink: #e8e2d4;
+  --ink-soft: #b9b3a4;
+  --body: #a8a193;
+  --dim: #8f887a;
+  --faint: #5f594f;
+  --line: #2b2822;
+  --line-hover: #4a453d;
+
+  --card-bg: #191713;
+  --card-bg-hover: #241f1a;
+  --card-shadow: 0 12px 28px -16px #000;
+  --card-radius: var(--radius-sm);
+
+  --rule: #2b2822;
+  --rule-strong: #3a352e;
+
+  --frame-border: #322d27;
+  --frame-bg: rgba(255, 249, 232, 0.006);
+  --legend: #7c7568;
+  --legend-dim: #56514a;
+  --edge-ink: #b5ae9f;
+}

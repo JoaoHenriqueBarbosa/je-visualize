@@ -9,10 +9,10 @@ const row = (
   accent: string,
   items: [string, string, string, string][]
 ): NodeSpec[] =>
-  items.map(([id, devanagari, iast, gloss], i) => ({
+  items.map(([id, script, label, gloss], i) => ({
     id,
-    devanagari,
-    iast,
+    script,
+    label,
     gloss,
     accent,
     variant: "compact" as const,
@@ -64,7 +64,7 @@ const sutilParaGrosseiro: EdgeSpec[] = tanmatra.map((t, i) => ({
 export const tattvas: FlowSpec = {
   slug: "tattvas",
   title: "pañcaviṃśati tattva",
-  devanagari: "पञ्चविंशति तत्त्व",
+  script: "पञ्चविंशति तत्त्व",
   subtitle:
     "Os vinte e cinco princípios: como o inconsciente que se desdobra é visto por aquilo que só olha.",
   blurb:
@@ -83,8 +83,8 @@ export const tattvas: FlowSpec = {
   nodes: [
     {
       id: "purusha",
-      devanagari: "पुरुष",
-      iast: "puruṣa",
+      script: "पुरुष",
+      label: "puruṣa",
       gloss: "sākṣin — a testemunha",
       detail:
         "Consciência pura, plural, inativa. Não evolui, não produz, não é produzido. Sua mera presença (sānnidhya) basta para que prakṛti se desdobre — como o ímã que move sem tocar.",
@@ -95,8 +95,8 @@ export const tattvas: FlowSpec = {
     },
     {
       id: "prakriti",
-      devanagari: "मूलप्रकृति",
-      iast: "mūlaprakṛti",
+      script: "मूलप्रकृति",
+      label: "mūlaprakṛti",
       gloss: "avyakta — o não-manifesto",
       detail:
         "A raiz não-produzida de tudo que é produzido. Equilíbrio dos três guṇas; quando o equilíbrio se rompe, começa a evolução. Inconsciente, mas teleológica: age para a libertação do puruṣa.",
@@ -106,8 +106,8 @@ export const tattvas: FlowSpec = {
     },
     {
       id: "mahat",
-      devanagari: "महत्",
-      iast: "mahat · buddhi",
+      script: "महत्",
+      label: "mahat · buddhi",
       gloss: "adhyavasāya — determinação",
       detail:
         "O grande princípio, primeiro evoluto. Cósmico é mahat; individual é buddhi. É a superfície onde o reflexo do puruṣa aparece — e por isso onde a confusão entre ver e agir começa.",
@@ -117,8 +117,8 @@ export const tattvas: FlowSpec = {
     },
     {
       id: "ahamkara",
-      devanagari: "अहंकार",
-      iast: "ahaṃkāra",
+      script: "अहंकार",
+      label: "ahaṃkāra",
       gloss: "abhimāna — apropriação",
       detail:
         "Onde o processo impessoal ganha um dono. Tudo abaixo daqui é produto de uma identificação, não de uma substância nova.",
@@ -128,8 +128,8 @@ export const tattvas: FlowSpec = {
     },
     {
       id: "vaikrta",
-      devanagari: "वैकृत",
-      iast: "vaikṛta",
+      script: "वैकृत",
+      label: "vaikṛta",
       gloss: "sāttvika — modo lúcido",
       detail: "Produz os onze órgãos: manas e as dez portas.",
       accent: P.sattva,
@@ -140,8 +140,8 @@ export const tattvas: FlowSpec = {
     },
     {
       id: "taijasa",
-      devanagari: "तैजस",
-      iast: "taijasa",
+      script: "तैजस",
+      label: "taijasa",
       gloss: "rājasa — modo ativo",
       detail: "Não produz nada sozinho: fornece a energia às outras duas.",
       accent: P.rajas,
@@ -152,8 +152,8 @@ export const tattvas: FlowSpec = {
     },
     {
       id: "bhutadi",
-      devanagari: "भूतादि",
-      iast: "bhūtādi",
+      script: "भूतादि",
+      label: "bhūtādi",
       gloss: "tāmasa — modo inerte",
       detail: "Produz os cinco tanmātras, e destes os cinco elementos.",
       accent: P.tamas,
@@ -164,8 +164,8 @@ export const tattvas: FlowSpec = {
     },
     {
       id: "manas",
-      devanagari: "मनस्",
-      iast: "manas",
+      script: "मनस्",
+      label: "manas",
       gloss: "saṅkalpa — o décimo primeiro órgão",
       detail:
         "Conta como órgão de percepção e de ação ao mesmo tempo. Coordena as dez portas; sem ele, os sentidos entregam dado que ninguém junta.",

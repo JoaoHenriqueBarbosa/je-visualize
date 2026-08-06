@@ -4,7 +4,7 @@ import { P } from "./palette";
 export const guna: FlowSpec = {
   slug: "guna",
   title: "triguṇa",
-  devanagari: "त्रिगुण",
+  script: "त्रिगुण",
   subtitle:
     "As três qualidades: não propriedades de prakṛti, mas prakṛti ela mesma vista em três modos.",
   blurb:
@@ -17,8 +17,8 @@ export const guna: FlowSpec = {
   nodes: [
     {
       id: "prakriti",
-      devanagari: "प्रकृति",
-      iast: "prakṛti",
+      script: "प्रकृति",
+      label: "prakṛti",
       gloss: "sāmyāvasthā — o estado de equilíbrio",
       detail:
         "Prakṛti não *tem* os guṇas: prakṛti *é* os três em equilíbrio. Manifestação é o nome que se dá ao rompimento desse equilíbrio.",
@@ -28,8 +28,8 @@ export const guna: FlowSpec = {
     },
     {
       id: "sattva",
-      devanagari: "सत्त्व",
-      iast: "sattva",
+      script: "सत्त्व",
+      label: "sattva",
       gloss: "prakāśa — luz, leveza",
       detail:
         "O que revela. Torna a mente translúcida o bastante para refletir o puruṣa. Sensação característica: clareza, e também prazer — que é por isso suspeito de ser mais um laço.",
@@ -40,8 +40,8 @@ export const guna: FlowSpec = {
     },
     {
       id: "rajas",
-      devanagari: "रजस्",
-      iast: "rajas",
+      script: "रजस्",
+      label: "rajas",
       gloss: "pravṛtti — moção, esforço",
       detail:
         "O que move. Único dos três que é ativo por si; os outros dois dependem dele para operar. Sensação característica: inquietação, duḥkha.",
@@ -52,8 +52,8 @@ export const guna: FlowSpec = {
     },
     {
       id: "tamas",
-      devanagari: "तमस्",
-      iast: "tamas",
+      script: "तमस्",
+      label: "tamas",
       gloss: "niyama — peso, obstrução",
       detail:
         "O que retém. Dá densidade e permanência; sem ele nada teria forma estável. Sensação característica: torpor, indiferença.",
@@ -93,7 +93,7 @@ export const guna: FlowSpec = {
 export const pramana: FlowSpec = {
   slug: "pramana",
   title: "pramāṇa",
-  devanagari: "प्रमाण",
+  script: "प्रमाण",
   subtitle:
     "Os três meios de conhecimento válido — e por que o Sāṃkhya para em três.",
   blurb:
@@ -108,8 +108,8 @@ export const pramana: FlowSpec = {
   nodes: [
     {
       id: "vishaya",
-      devanagari: "विषय",
-      iast: "viṣaya",
+      script: "विषय",
+      label: "viṣaya",
       gloss: "o objeto a conhecer",
       detail:
         "O que se apresenta. Antes de qualquer meio, há algo cuja forma ainda não foi determinada.",
@@ -119,8 +119,8 @@ export const pramana: FlowSpec = {
     },
     {
       id: "pratyaksha",
-      devanagari: "प्रत्यक्ष",
-      iast: "pratyakṣa",
+      script: "प्रत्यक्ष",
+      label: "pratyakṣa",
       gloss: "percepção direta",
       detail:
         "Contato do sentido com o objeto, moldado em buddhi. É o pramāṇa-raiz: os outros dois dependem dele em algum ponto da cadeia.",
@@ -131,8 +131,8 @@ export const pramana: FlowSpec = {
     },
     {
       id: "anumana",
-      devanagari: "अनुमान",
-      iast: "anumāna",
+      script: "अनुमान",
+      label: "anumāna",
       gloss: "inferência",
       detail:
         "Da marca ao marcado, por concomitância invariável (vyāpti). É por anumāna que se conhece prakṛti e puruṣa — nenhum dos dois é percebido.",
@@ -143,8 +143,8 @@ export const pramana: FlowSpec = {
     },
     {
       id: "shabda",
-      devanagari: "शब्द",
-      iast: "śabda · āptavacana",
+      script: "शब्द",
+      label: "śabda · āptavacana",
       gloss: "testemunho confiável",
       detail:
         "Palavra de quem conhece. Não é apelo à autoridade: vale porque a fonte teve acesso que o ouvinte não tem, e sob condições verificáveis.",
@@ -155,8 +155,8 @@ export const pramana: FlowSpec = {
     },
     {
       id: "prama",
-      devanagari: "प्रमा",
-      iast: "pramā",
+      script: "प्रमा",
+      label: "pramā",
       gloss: "o conhecimento resultante",
       detail:
         "A vṛtti de buddhi que assume a forma do objeto. O puruṣa não conhece: ele ilumina a vṛtti — e é isso que se chama de conhecer.",
@@ -185,7 +185,7 @@ export const pramana: FlowSpec = {
 export const kaivalya: FlowSpec = {
   slug: "kaivalya",
   title: "kaivalya",
-  devanagari: "कैवल्य",
+  script: "कैवल्य",
   subtitle:
     "O problema que o sistema inteiro existe para resolver, e a forma da solução.",
   blurb:
@@ -200,8 +200,8 @@ export const kaivalya: FlowSpec = {
   nodes: [
     {
       id: "adhyatmika",
-      devanagari: "आध्यात्मिक",
-      iast: "ādhyātmika",
+      script: "आध्यात्मिक",
+      label: "ādhyātmika",
       gloss: "de dentro",
       detail: "Corpo e mente: doença, desejo, medo.",
       accent: P.manas,
@@ -212,8 +212,8 @@ export const kaivalya: FlowSpec = {
     },
     {
       id: "adhibhautika",
-      devanagari: "आधिभौतिक",
-      iast: "ādhibhautika",
+      script: "आधिभौतिक",
+      label: "ādhibhautika",
       gloss: "dos outros seres",
       detail: "Gente, bicho, coisa: o mundo que resiste.",
       accent: P.bhuta,
@@ -224,8 +224,8 @@ export const kaivalya: FlowSpec = {
     },
     {
       id: "adhidaivika",
-      devanagari: "आधिदैविक",
-      iast: "ādhidaivika",
+      script: "आधिदैविक",
+      label: "ādhidaivika",
       gloss: "do que não se controla",
       detail: "Clima, acaso, destino: o que não tem a quem reclamar.",
       accent: P.tamas,
@@ -236,8 +236,8 @@ export const kaivalya: FlowSpec = {
     },
     {
       id: "duhkha",
-      devanagari: "दुःख",
-      iast: "duḥkha",
+      script: "दुःख",
+      label: "duḥkha",
       gloss: "o fato do sofrimento",
       detail:
         "O Sāṃkhya abre com isto, não com metafísica: há sofrimento, os remédios comuns são temporários, e por isso vale procurar um que não seja.",
@@ -247,8 +247,8 @@ export const kaivalya: FlowSpec = {
     },
     {
       id: "aviveka",
-      devanagari: "अविवेक",
-      iast: "aviveka",
+      script: "अविवेक",
+      label: "aviveka",
       gloss: "a não-discriminação",
       detail:
         "A raiz: tomar o instrumento pelo si. Buddhi decide e o puruṣa parece ter decidido; o corpo dói e o puruṣa parece doer. Nada de fato se mistura — a confusão é que é real.",
@@ -258,8 +258,8 @@ export const kaivalya: FlowSpec = {
     },
     {
       id: "vivekakhyati",
-      devanagari: "विवेकख्याति",
-      iast: "vivekakhyāti",
+      script: "विवेकख्याति",
+      label: "vivekakhyāti",
       gloss: "a discriminação estabelecida",
       detail:
         "Não um insight que passa, mas um discernimento que se sustenta: puruṣa não é prakṛti, e nada do que acontece em buddhi jamais aconteceu com quem olha.",
@@ -269,8 +269,8 @@ export const kaivalya: FlowSpec = {
     },
     {
       id: "kaivalya",
-      devanagari: "कैवल्य",
-      iast: "kaivalya",
+      script: "कैवल्य",
+      label: "kaivalya",
       gloss: "isolamento",
       detail:
         "Prakṛti para — não porque foi vencida, mas porque cumpriu o que fazia. Como a dançarina que se retira depois de ter sido vista.",
@@ -281,8 +281,8 @@ export const kaivalya: FlowSpec = {
     },
     {
       id: "purusha",
-      devanagari: "पुरुष",
-      iast: "puruṣa",
+      script: "पुरुष",
+      label: "puruṣa",
       gloss: "quem nunca esteve preso",
       detail:
         "Não é libertado: descobre-se que nunca foi ligado. O cativeiro pertencia a prakṛti; a libertação também.",

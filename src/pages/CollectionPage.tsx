@@ -7,7 +7,7 @@ export default function CollectionPage() {
 
   if (!spec) {
     return (
-      <div className="page missing">
+      <div className="page missing theme-root">
         <p>Não há visualização com esse nome.</p>
         <Link to="/" className="back">
           voltar
@@ -17,12 +17,13 @@ export default function CollectionPage() {
   }
 
   return (
-    <div className="page home">
+    <div className={`page home ${spec.theme}`}>
+      <div className="wrap">
       <header className="site-head">
         <Link to="/" className="back">
           ← je-visualize
         </Link>
-        {spec.devanagari && <h1>{spec.devanagari}</h1>}
+        {spec.script && <h1>{spec.script}</h1>}
         <p className="site-sub">
           {spec.title} — {spec.subtitle}
         </p>
@@ -33,7 +34,7 @@ export default function CollectionPage() {
         {spec.flows.map((f) => (
           <li key={f.slug}>
             <Link to={`/${spec.slug}/${f.slug}`} className="flow-card">
-              <span className="flow-card-deva">{f.devanagari}</span>
+              <span className="flow-card-script">{f.script}</span>
               <span className="flow-card-title">{f.title}</span>
               <span className="flow-card-blurb">{f.blurb}</span>
               <span className="flow-card-meta">
@@ -45,6 +46,7 @@ export default function CollectionPage() {
       </ul>
 
       {spec.footer && <footer className="site-foot">{spec.footer}</footer>}
+      </div>
     </div>
   );
 }

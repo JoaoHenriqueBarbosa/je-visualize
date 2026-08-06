@@ -9,7 +9,7 @@ export default function FlowPage() {
 
   if (!owner || !spec) {
     return (
-      <div className="page missing">
+      <div className="page missing theme-root">
         <p>Não há diagrama com esse nome.</p>
         <Link to={owner ? `/${owner.slug}` : "/"} className="back">
           voltar
@@ -19,14 +19,14 @@ export default function FlowPage() {
   }
 
   return (
-    <div className="page flow-page">
+    <div className={`page flow-page ${owner.theme}`}>
       <header className="flow-head">
         <Link to={`/${owner.slug}`} className="back">
           ← {owner.title}
         </Link>
         <h1>
-          <span className="flow-head-deva">{spec.devanagari}</span>
-          <span className="flow-head-iast">{spec.title}</span>
+          <span className="flow-head-script">{spec.script}</span>
+          <span className="flow-head-name">{spec.title}</span>
         </h1>
         <p>{spec.subtitle}</p>
       </header>

@@ -1,0 +1,311 @@
+/**
+ * Estrutura das páginas. Mesma regra do flow.css: mede e posiciona, mas não
+ * escolhe cor nem tipografia. Cada tema define as variáveis e pode sobrepor
+ * o que quiser depois — a cascata favorece o tema porque ele é mais
+ * específico (`.theme-x .algo`).
+ */
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+/* ------------------------------------------------------ listagem da raiz */
+
+/* A página pinta o fundo inteiro; a medida de leitura é do invólucro.
+   Sem isso o tema, que é escopado na página, deixa uma faixa sem cor em
+   volta da coluna central. */
+.site-home .wrap {
+  max-width: var(--page-w);
+  margin: 0 auto;
+  padding: var(--sp-9) var(--sp-6) var(--sp-8);
+}
+
+.root-head {
+  border-bottom: var(--bw) solid var(--line);
+  padding-bottom: var(--sp-6);
+}
+
+.root-head h1 {
+  margin: 0;
+  font-family: var(--font-display, var(--font-body));
+  font-size: var(--fs-2xl);
+  font-weight: 500;
+  letter-spacing: var(--ls-wide);
+  color: var(--ink);
+}
+
+.root-sub {
+  margin: var(--sp-3) 0 0;
+  max-width: var(--measure-narrow);
+  font-size: var(--fs-md);
+  line-height: var(--lh-loose);
+  color: var(--dim);
+}
+
+.coll-list {
+  list-style: none;
+  margin: var(--sp-7) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.coll-card {
+  display: block;
+  padding: var(--sp-5) var(--sp-5);
+  border: var(--bw) solid var(--line);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  background: var(--card-bg);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.coll-card:hover {
+  border-color: var(--line-hover);
+  background: var(--card-bg-hover);
+}
+
+.coll-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+}
+
+.coll-card-script {
+  font-size: var(--fs-lg);
+  color: var(--ink);
+  font-family: var(--font-script, var(--font-body));
+}
+
+.coll-card-title {
+  font-family: var(--font-display, var(--font-body));
+  font-size: var(--fs-md);
+  letter-spacing: var(--ls-wider);
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.coll-card-blurb {
+  display: block;
+  margin-top: var(--sp-2);
+  max-width: var(--measure);
+  font-size: var(--fs-base);
+  line-height: var(--lh-loose);
+  color: var(--body);
+}
+
+.coll-card-meta {
+  display: block;
+  margin-top: var(--sp-3);
+  font-family: var(--font-display, var(--font-body));
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.root-foot {
+  margin-top: var(--sp-7);
+  padding-top: var(--sp-5);
+  border-top: var(--bw) solid var(--line);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-loose);
+  color: var(--faint);
+}
+
+/* -------------------------------------------------- página da visualização */
+
+.home .wrap {
+  max-width: var(--page-w-wide);
+  margin: 0 auto;
+  padding: var(--sp-7) var(--sp-6) var(--sp-8);
+}
+
+.site-head {
+  padding-bottom: var(--sp-5);
+}
+
+.site-head h1 {
+  margin: 0;
+  font-size: var(--fs-3xl);
+  font-weight: 500;
+  letter-spacing: var(--ls-tight);
+  font-family: var(--font-script, var(--font-display, var(--font-body)));
+}
+
+.site-head .back {
+  display: inline-block;
+  margin-bottom: var(--sp-4);
+}
+
+.site-sub {
+  margin: var(--sp-3) 0 0;
+  max-width: var(--measure);
+  font-size: var(--fs-md);
+  font-style: var(--gloss-style, italic);
+  color: var(--dim);
+}
+
+.site-lede {
+  margin: var(--sp-4) 0 0;
+  max-width: var(--measure);
+  font-size: var(--fs-md);
+  line-height: var(--lh-normal);
+  color: var(--body);
+}
+
+.flow-list {
+  list-style: none;
+  margin: var(--sp-6) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--sp-4);
+}
+
+.flow-card {
+  display: block;
+  height: 100%;
+  padding: var(--sp-5);
+  border: var(--bw) solid var(--line);
+  border-left: var(--bw-accent) solid var(--line-hover);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  background: var(--card-bg);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.flow-card:hover {
+  border-color: var(--line-hover);
+  background: var(--card-bg-hover);
+}
+
+.flow-card-script {
+  display: block;
+  font-size: var(--fs-xl);
+  line-height: var(--lh-tight);
+  color: var(--ink);
+  font-family: var(--font-script, var(--font-body));
+}
+
+.flow-card-title {
+  display: block;
+  margin-top: var(--sp-1);
+  font-size: var(--fs-md);
+  color: var(--ink);
+  font-family: var(--font-display, var(--font-body));
+}
+
+.flow-card-blurb {
+  display: block;
+  margin-top: var(--sp-3);
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+  color: var(--body);
+}
+
+.flow-card-meta {
+  display: block;
+  margin-top: var(--sp-4);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--ls-tight);
+  color: var(--faint);
+}
+
+.site-foot {
+  margin-top: var(--sp-7);
+  padding-top: var(--sp-5);
+  border-top: var(--bw) solid var(--line);
+  font-size: var(--fs-sm);
+  font-style: var(--gloss-style, italic);
+  color: var(--faint);
+}
+
+/* ----------------------------------------------------- página do diagrama */
+
+.flow-page {
+  height: 100%;
+}
+
+.flow-head {
+  padding: var(--sp-5) var(--sp-7) var(--sp-4);
+  border-bottom: var(--bw) solid var(--line);
+}
+
+.back {
+  font-size: var(--fs-sm);
+  letter-spacing: var(--ls-wide);
+  text-decoration: none;
+  color: var(--faint);
+  transition: color 0.15s;
+}
+
+.back:hover {
+  color: var(--dim);
+}
+
+.flow-head h1 {
+  margin: var(--sp-3) 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-4);
+  font-weight: 500;
+}
+
+.flow-head-script {
+  font-size: var(--fs-3xl);
+  letter-spacing: var(--ls-tight);
+  font-family: var(--font-script, var(--font-body));
+}
+
+.flow-head-name {
+  font-size: var(--fs-lg);
+  letter-spacing: var(--ls-wide);
+  color: var(--dim);
+  font-family: var(--font-display, var(--font-body));
+}
+
+.flow-head p {
+  margin: var(--sp-2) 0 0;
+  max-width: var(--measure);
+  font-size: var(--fs-md);
+  line-height: var(--lh-normal);
+  font-style: var(--gloss-style, italic);
+  color: var(--dim);
+}
+
+.flow-foot {
+  border-top: var(--bw) solid var(--line);
+  padding: var(--sp-4) var(--sp-7);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+  color: var(--dim);
+}
+
+.flow-foot .muted {
+  opacity: 0.62;
+  font-style: var(--gloss-style, italic);
+}
+
+.missing {
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  color: var(--dim);
+}

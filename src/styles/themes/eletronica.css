@@ -1,0 +1,62 @@
+/**
+ * Tema eletrônica. Não é o mesmo assunto e não deve ser a mesma coisa de
+ * olhar: fundo de placa, monoespaçada, verde de fósforo, cantos retos.
+ *
+ * Serve de prova de que o escopo funciona — os dois temas dividem motor,
+ * estrutura e tokens de tamanho, e não se parecem em nada.
+ */
+
+.theme-eletronica {
+  --font-body: ui-monospace, "SF Mono", "JetBrains Mono", "Menlo", monospace;
+  --font-display: var(--font-body);
+  --font-script: var(--font-body);
+
+  --bg: #06100c;
+  --ink: #d6f5e3;
+  --ink-soft: #7fbf9c;
+  --body: #7d9c8b;
+  --dim: #6f9481;
+  --faint: #44685a;
+  --line: #17301f;
+  --line-hover: #2c5c3d;
+
+  --card-bg: #0b1a13;
+  --card-bg-hover: #10281c;
+  --card-shadow: none;
+  --card-radius: 0;
+
+  --rule: #1b3626;
+  --rule-strong: #2c5c3d;
+
+  --frame-border: #244434;
+  --frame-style: solid;
+  --frame-bg: rgba(120, 255, 180, 0.012);
+  --legend: #5f9c7b;
+  --legend-dim: #3f6b55;
+  --edge-ink: #79b797;
+
+  /* Monoespaçada não tem itálico decente; e esquemático não comenta. */
+  --gloss-style: normal;
+}
+
+/* Cantos retos até nos cartões arredondados: aqui nada é orgânico. */
+.theme-eletronica .concept.round {
+  border-radius: 0;
+  border-left-width: var(--bw-accent);
+  text-align: left;
+  padding: var(--card-pad-y) var(--card-pad-x);
+}
+
+.theme-eletronica .concept-label {
+  letter-spacing: var(--ls-tight);
+  text-transform: uppercase;
+}
+
+.theme-eletronica .flow-card,
+.theme-eletronica .coll-card {
+  border-radius: 0;
+}
+
+.theme-eletronica .group-legend-name {
+  letter-spacing: var(--ls-wide);
+}

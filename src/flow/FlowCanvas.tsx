@@ -97,12 +97,9 @@ export default function FlowCanvas({ spec }: { spec: FlowSpec }) {
         label: e.label,
         animated: kind === "feedback",
         style: { stroke: accent, ...stroke },
-        labelStyle: {
-          fill: "#b5ae9f",
-          fontSize: 11.5,
-          fontStyle: "italic",
-        },
-        labelBgStyle: { fill: "#100f0d" },
+        // Cor e fonte do rótulo vêm do CSS do tema (.react-flow__edge-text),
+        // não daqui: cravar aqui vazava o bege do sāṃkhya para todo tema, e
+        // fazia o desenho divergir da medida, que sempre usou a fonte do tema.
         labelBgPadding: [7, 4] as [number, number],
         labelBgBorderRadius: 2,
         markerEnd:
@@ -146,7 +143,7 @@ export default function FlowCanvas({ spec }: { spec: FlowSpec }) {
             variant={BackgroundVariant.Dots}
             gap={28}
             size={1}
-            color="#282621"
+            className="flow-dots"
           />
           <Controls showInteractive={false} position="bottom-right" />
         </ReactFlow>

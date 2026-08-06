@@ -1,8 +1,9 @@
 import type { CollectionSpec } from "./types";
 import { samkhya } from "./samkhya";
+import { eletronica } from "./eletronica";
 
 /** Tudo que já foi pedido para ser visualizado, do mais recente ao mais antigo. */
-export const collections: CollectionSpec[] = [samkhya];
+export const collections: CollectionSpec[] = [samkhya, eletronica];
 
 export const collectionBySlug = (slug: string) =>
   collections.find((c) => c.slug === slug);

@@ -15,7 +15,7 @@ export interface CollectionSpec {
   /** Nome curto, no registro do próprio assunto. */
   title: string;
   /** Grafia nativa, se houver. Opcional: nem todo assunto tem uma. */
-  devanagari?: string;
+  script?: string;
   /** Uma linha, no cartão da home. */
   blurb: string;
   /** Subtítulo da página da coleção. */
@@ -24,6 +24,12 @@ export interface CollectionSpec {
   lede?: string;
   /** Nota de rodapé da página da coleção. */
   footer?: string;
+  /**
+   * Classe de tema aplicada na raiz das páginas desta coleção.
+   * O arquivo vive em `src/styles/themes/`. Cor e tipografia são dele;
+   * tamanho é global. Duas coleções podem não parecer nada uma com a outra.
+   */
+  theme: string;
   /** Em ordem de leitura sugerida. */
   flows: FlowSpec[];
 }

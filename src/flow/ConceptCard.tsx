@@ -17,12 +17,12 @@ export default function ConceptCard({ node }: { node: NodeSpec }) {
       className={`concept ${compact ? "compact" : "full"} ${node.round ? "round" : ""}`}
       style={{ borderColor: accent }}
     >
-      {node.devanagari && (
+      {node.script && (
         <div className="concept-deva" style={{ color: accent }}>
-          {node.devanagari}
+          {node.script}
         </div>
       )}
-      <div className="concept-iast">{node.iast}</div>
+      <div className="concept-label">{node.label}</div>
       {node.gloss && <div className="concept-gloss">{node.gloss}</div>}
       {node.detail && <div className="concept-detail">{node.detail}</div>}
     </div>

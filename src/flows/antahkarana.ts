@@ -4,7 +4,7 @@ import { P } from "./palette";
 export const antahkarana: FlowSpec = {
   slug: "antahkarana",
   title: "antaḥkaraṇa",
-  devanagari: "अन्तःकरण",
+  script: "अन्तःकरण",
   subtitle:
     "As camadas do instrumento interno — e o que atravessa todas elas sem pertencer a nenhuma.",
   blurb:
@@ -19,8 +19,8 @@ export const antahkarana: FlowSpec = {
   nodes: [
     {
       id: "indriya",
-      devanagari: "इन्द्रिय",
-      iast: "indriya",
+      script: "इन्द्रिय",
+      label: "indriya",
       gloss: "os sentidos",
       detail:
         "Cinco jñānendriyas de percepção e cinco karmendriyas de ação. Entregam o dado bruto; nada decidem.",
@@ -29,8 +29,8 @@ export const antahkarana: FlowSpec = {
     },
     {
       id: "manas",
-      devanagari: "मनस्",
-      iast: "manas",
+      script: "मनस्",
+      label: "manas",
       gloss: "saṅkalpa · vikalpa",
       detail:
         "A mente que oscila: propõe e retira, considera e desconsidera. Recebe dos indriyas e remói sem fechar. Dúvida como modo de operação.",
@@ -40,8 +40,8 @@ export const antahkarana: FlowSpec = {
     },
     {
       id: "buddhi",
-      devanagari: "बुद्धि",
-      iast: "buddhi",
+      script: "बुद्धि",
+      label: "buddhi",
       gloss: "niścayātmikā vṛtti",
       detail:
         "Corta a oscilação com um niścaya — determinação. Não é viveka: é o órgão onde viveka acontece quando está afiado. Superfície mais límpida do antaḥkaraṇa, e por isso onde o reflexo aparece nítido.",
@@ -51,8 +51,8 @@ export const antahkarana: FlowSpec = {
     },
     {
       id: "ahamkara",
-      devanagari: "अहंकार",
-      iast: "ahaṃkāra",
+      script: "अहंकार",
+      label: "ahaṃkāra",
       gloss: "aham + kāra — o fazer do eu",
       detail:
         "Toma a conclusão de buddhi e a carimba como minha. Constrói o jīva como kartṛtva (agente) e bhoktṛtva (fruidor). Sem ele não há agência; hipertrofiado, confunde o ator com o personagem.",
@@ -62,8 +62,8 @@ export const antahkarana: FlowSpec = {
     },
     {
       id: "citta",
-      devanagari: "चित्त",
-      iast: "citta",
+      script: "चित्त",
+      label: "citta",
       gloss: "smaraṇa · saṃskāra",
       detail:
         "O depósito. Memória e impressões latentes que condicionam o que manas sequer chega a considerar. Em Patañjali o termo inverte de peso e nomeia o aparato inteiro — cittavṛttinirodha.",
@@ -74,8 +74,8 @@ export const antahkarana: FlowSpec = {
     },
     {
       id: "atman",
-      devanagari: "आत्मन्",
-      iast: "ātman",
+      script: "आत्मन्",
+      label: "ātman",
       gloss: "caitanya — consciência",
       detail:
         "Não é camada nem parte. Não age, não decide, não lembra. Só ilumina — e o que se toma por 'eu' é o reflexo dessa luz num instrumento.",
