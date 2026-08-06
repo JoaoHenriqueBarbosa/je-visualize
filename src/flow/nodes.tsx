@@ -1,5 +1,5 @@
 import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
-import ConceptCard from "./ConceptCard";
+import ConceptCard, { type CardState } from "./ConceptCard";
 import type { NodeSpec, Side } from "./types";
 
 const SIDES: { id: Side; pos: Position }[] = [
@@ -9,7 +9,10 @@ const SIDES: { id: Side; pos: Position }[] = [
   { id: "r", pos: Position.Right },
 ];
 
-export type ConceptNodeType = Node<{ node: NodeSpec }, "concept">;
+export type ConceptNodeType = Node<
+  { node: NodeSpec; state?: CardState },
+  "concept"
+>;
 
 /**
  * Quatro âncoras de entrada e quatro de saída em cada nó. O motor escolhe
@@ -37,7 +40,7 @@ export function ConceptNode({ data }: NodeProps<ConceptNodeType>) {
           className="anchor"
         />
       ))}
-      <ConceptCard node={data.node} />
+      <ConceptCard node={data.node} state={data.state} />
     </>
   );
 }

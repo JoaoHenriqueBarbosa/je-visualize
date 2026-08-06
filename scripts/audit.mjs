@@ -13,6 +13,12 @@
  *
  *   4. nenhum rótulo de aresta cai por cima de um cartão
  *
+ * Nos flows simulados há uma quinta, semântica: o script clica cada
+ * combinação de entradas de verdade e cobra coerência entre o estado da
+ * simulação (window.__simValues/__simActive) e o que o DOM mostra — badge,
+ * `.is-on`, `.is-active`. Um flow que desenha certo mas conduz errado
+ * reprova aqui.
+ *
  * Uso:
  *   bun run audit                  todas as visualizações
  *   bun run audit samkhya          só uma
@@ -163,12 +169,68 @@ const run = async () => {
         if (overlaps(l, n))
           problems.push(`rótulo "${l.id}" por cima do cartão ${n.id}`);
 
+    // 5. simulação — clica cada combinação de entradas e cobra coerência
+    // entre o estado (window.__sim*) e o que o DOM mostra. A última
+    // combinação é a de tudo em 1, de propósito: o screenshot sai energizado.
+    const simMeta = await page.evaluate(() => window.__simMeta ?? null);
+    let simStates = 0;
+    if (simMeta?.inputs?.length) {
+      const combos = simMeta.inputs.reduce(
+        (acc, input) =>
+          acc.flatMap((c) => input.cycle.map((v) => [...c, [input.id, v]])),
+        [[]]
+      );
+
+      for (const combo of combos.slice(0, 16)) {
+        for (const [id, target] of combo) {
+          for (let k = 0; k < 4; k++) {
+            const cur = await page.evaluate(
+              (i) => window.__simValues?.[i],
+              id
+            );
+            if (String(cur) === String(target)) break;
+            await page.click(`.react-flow__node[data-id="${id}"]`);
+            await page.waitForTimeout(50);
+          }
+        }
+        simStates += 1;
+
+        const mismatches = await page.evaluate(() => {
+          const values = window.__simValues ?? {};
+          const active = new Set(window.__simActive ?? []);
+          const out = [];
+          for (const el of document.querySelectorAll(
+            ".react-flow__node .concept"
+          )) {
+            const id = el
+              .closest(".react-flow__node")
+              ?.getAttribute("data-id");
+            const badge = el.querySelector(".concept-value");
+            if (badge) {
+              if (el.classList.contains("is-on") !== !!values[id])
+                out.push(`is-on incoerente em ${id}`);
+              if (badge.textContent !== String(values[id]))
+                out.push(
+                  `badge de ${id} mostra "${badge.textContent}", valor é ${values[id]}`
+                );
+            }
+            if (el.classList.contains("is-active") !== active.has(id))
+              out.push(`is-active incoerente em ${id}`);
+          }
+          return out;
+        });
+        for (const m of mismatches)
+          problems.push(`sim ${combo.map(([i, v]) => `${i}=${v}`).join(",")}: ${m}`);
+      }
+    }
+
     await page.screenshot({ path: `${OUT}/${slug}.png`, fullPage: true });
 
     const tag = problems.length ? "FALHA" : "ok   ";
     console.log(
       `${tag} ${slug.padEnd(24)} ${String(nodes.length).padStart(2)} nós · ` +
-        `${groups.length} molduras · ${labels.length} rótulos`
+        `${groups.length} molduras · ${labels.length} rótulos` +
+        (simStates ? ` · sim ${simStates} estados` : "")
     );
     for (const p of problems) console.log(`        · ${p}`);
     for (const w of warnings) console.log(`        ! ${w}`);

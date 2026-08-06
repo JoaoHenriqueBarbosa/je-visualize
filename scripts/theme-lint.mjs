@@ -23,6 +23,13 @@ import { join } from "node:path";
 
 const read = (p) => readFileSync(p, "utf8");
 
+/**
+ * Variáveis que chegam inline pelo DADO do flow (style={{ "--x": ... }}),
+ * não pelo tema — o accent é identidade do conceito e atravessa temas.
+ * Lista explícita e curta de propósito: cada entrada aqui é uma decisão.
+ */
+const DATA_VARS = new Set(["--accent"]);
+
 /** Variáveis exigidas (usadas sem fallback) num CSS de estrutura. */
 const required = (css) => {
   const out = new Set();
@@ -76,7 +83,9 @@ for (const f of readdirSync("src/styles/themes").sort()) {
   const owed = isCollection ? new Set([...pagesVars, ...canvasVars]) : pagesVars;
   const has = defined(css);
 
-  const missing = [...owed].filter((v) => !has.has(v) && !globals.has(v)).sort();
+  const missing = [...owed]
+    .filter((v) => !has.has(v) && !globals.has(v) && !DATA_VARS.has(v))
+    .sort();
   const scope = isCollection ? "coleção" : "só páginas";
   if (missing.length) {
     console.log(`FALHA ${themeClass.padEnd(20)} (${scope})`);

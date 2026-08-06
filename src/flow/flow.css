@@ -143,6 +143,80 @@
   color: var(--legend-dim);
 }
 
+/* ------------------------------------------------------------- simulação */
+
+/* Estados são classes; cor de estado deriva de --accent, que o cartão e a
+   aresta recebem inline do DADO do flow (nunca do tema). O tema modula a
+   intensidade pelas variáveis opcionais (--on-glow, --wire-off, ...). */
+
+.concept {
+  position: relative;
+}
+
+/* O badge de valor é absoluto e ancorado na borda de cima: não participa da
+   caixa, então a simulação nunca muda a medida que o motor usou. */
+.concept-value {
+  position: absolute;
+  top: 0;
+  right: var(--sp-3);
+  transform: translateY(-50%);
+  min-width: 26px;
+  text-align: center;
+  padding: 1px var(--sp-2);
+  background: var(--card-bg);
+  border: var(--bw) solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+  font-family: var(--font-display, var(--font-body));
+}
+
+.concept.is-input {
+  cursor: pointer;
+}
+
+.concept.is-input:hover {
+  background: var(--card-bg-hover, var(--card-bg));
+}
+
+.concept.is-on {
+  box-shadow: 0 0 var(--on-glow, 22px) var(--on-glow-spread, -6px)
+    var(--accent);
+}
+
+/* A linha viva da tabela verdade — acesa enquanto a condição vale. */
+.concept.is-active {
+  background: var(--card-bg-active, var(--card-bg-hover, var(--card-bg)));
+  box-shadow: 0 0 var(--on-glow, 22px) var(--on-glow-spread, -8px)
+    var(--accent);
+}
+
+/* Fio vivo: só arestas de fluxo conduzem. O brilho usa a --accent posta
+   inline na própria aresta. */
+.react-flow__edge.edge-live .react-flow__edge-path {
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 3.5px var(--accent));
+}
+
+/* Num flow simulado, fio sem corrente recua — é o contraste que faz o
+   caminho vivo ser legível de relance. */
+.flow-canvas.sim .react-flow__edge.wire:not(.edge-live) .react-flow__edge-path {
+  opacity: var(--wire-off, 0.45);
+}
+
+/* ------------------------------------------------------------- modo foco */
+
+.concept,
+.react-flow__edge {
+  transition: opacity 0.18s;
+}
+
+.concept.dimmed,
+.react-flow__edge.dimmed {
+  opacity: var(--dim-opacity, 0.22);
+}
+
 /* --------------------------------------------------------------- arestas */
 
 .edge-label {

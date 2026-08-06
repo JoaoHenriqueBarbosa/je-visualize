@@ -17,6 +17,9 @@
 /** Lado de um nó por onde uma aresta entra ou sai. */
 export type Side = "t" | "b" | "l" | "r";
 
+/** Valor que circula na simulação: nível lógico, número, símbolo. */
+export type SimValue = number | string | boolean;
+
 export interface NodeSpec {
   id: string;
   /** Grafia nativa ou símbolo, opcional: devanāgarī, glifo, notação. */
@@ -39,6 +42,25 @@ export interface NodeSpec {
   rank?: number;
   /** Id do grupo que contém este nó. */
   group?: string;
+
+  /*
+   * Campos de simulação. A presença de qualquer um deles num nó liga a
+   * simulação do flow inteiro; a ausência de todos mantém o flow estático,
+   * e é por isso que nenhum spec antigo mudou quando a camada entrou.
+   * O contrato continua declarativo — as funções são dado do assunto
+   * (specs são módulos TS), nunca posição, nunca pixel.
+   */
+
+  /** Torna o cartão um controle: o clique alterna pelos valores do ciclo. */
+  input?: { initial: SimValue; cycle?: SimValue[] };
+  /**
+   * Deriva o valor deste nó dos valores correntes, por id. Avaliado por
+   * relaxamento, então pode ler qualquer nó — inclusive num ciclo (latch),
+   * que estabiliza ou para no limite de passadas.
+   */
+  compute?: (v: Record<string, SimValue>) => SimValue;
+  /** Acende o cartão enquanto a condição vale — a linha viva da tabela. */
+  activeWhen?: (v: Record<string, SimValue>) => boolean;
 }
 
 export interface GroupSpec {

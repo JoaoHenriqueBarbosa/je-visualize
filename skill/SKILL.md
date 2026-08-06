@@ -82,6 +82,37 @@ ranks em colunas diferentes — declará-los em ranks sequenciais cria arestas
 compridas atravessando canvas vazio. Sequência no spec deve significar
 sequência no assunto.
 
+### Simulação (src/viz/sim.ts) — flows que conduzem
+
+Três campos opcionais no nó ligam a simulação do flow inteiro (a ausência
+dos três mantém o flow estático):
+
+- `input: { initial, cycle? }` — cartão clicável; clique alterna pelo ciclo
+  (default `[0, 1]`).
+- `compute: (v) => valor` — deriva dos valores correntes por id. Avaliado
+  por relaxamento: pode ler qualquer nó, ciclos (latch) estabilizam ou
+  param no limite de passadas.
+- `activeWhen: (v) => bool` — acende o cartão enquanto vale (linha viva da
+  tabela verdade).
+
+As funções são dado do assunto e moram no spec, como os accents. Regras:
+aresta `flow` com origem truthy fica viva; `aside`/`illumine` nunca — são
+anotação e presença, não condução. O valor aparece num badge **absoluto**
+(não participa da caixa: simulação nunca muda a medida). Estado dos inputs
+vai para a URL (`?sim=a:1,b:0`) — toda configuração é um link.
+
+Modo foco (todo flow, sem spec): clique num cartão sem `input` ilumina seu
+fecho causal — ancestrais ∪ descendentes por arestas `flow` apenas — e
+esmaece o resto. Esc ou clique no fundo desfaz. URL: `?foco=id`. No
+sāṃkhya isso é doutrina de graça: puruṣa entra por `illumine` e nunca é
+incluído no fecho de ninguém.
+
+A auditoria tem uma passada semântica: em flow simulado ela clica cada
+combinação de entradas e cobra coerência entre `window.__sim*` e o DOM
+(badge, `.is-on`, `.is-active`). Um flow que desenha certo mas conduz
+errado reprova. O screenshot sai na última combinação (tudo em 1), de
+propósito: a prova visual é o circuito energizado.
+
 ## O motor (src/flow/layout.ts) — o que ele garante e o que não
 
 Sete passadas: ordenação por caminho mais longo (ranks pinados respeitados),

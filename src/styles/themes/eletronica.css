@@ -53,6 +53,14 @@
   --edge-ink: #a5c9b6;
   --dots: #1c3a2a;
 
+  /* Simulação: aqui a bancada é o assunto, então o contraste entre vivo e
+     morto é maior que o default da estrutura — fio sem corrente quase some,
+     cartão aceso brilha mais longe. */
+  --wire-off: 0.28;
+  --on-glow: 28px;
+  --card-bg-active: #123326;
+  --dim-opacity: 0.18;
+
   /* Monoespaçada não tem itálico decente; e esquemático não comenta. */
   --gloss-style: normal;
 }
