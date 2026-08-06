@@ -377,6 +377,47 @@ body {
   font-style: var(--gloss-style, italic);
 }
 
+/* ------------------------------------------------------------ comparativo */
+
+.compare {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.compare-side {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.compare-side + .compare-side {
+  border-left: var(--bw) solid var(--line);
+}
+
+/* Centrado: o canto esquerdo é dos botões flutuantes da página. */
+.compare-side-head {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5) 0;
+  font-family: var(--font-display, var(--font-body));
+}
+
+.compare-side-script {
+  font-size: var(--fs-lg);
+  color: var(--ink);
+  font-family: var(--font-script, var(--font-body));
+}
+
+.compare-side-name {
+  font-size: var(--fs-sm);
+  letter-spacing: var(--ls-wide);
+  color: var(--dim);
+}
+
 .missing {
   align-items: center;
   justify-content: center;

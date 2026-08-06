@@ -14,7 +14,25 @@
 
 import type { FlowSpec } from "../flow/types";
 
-export type VizSpec = FlowSpec;
+/**
+ * Dois flows lado a lado com os inputs COMPARTILHADOS por id: alternar A
+ * num lado alterna nos dois, e a diferença entre os specs vira a única
+ * coisa que muda na tela. É o argumento "é o mesmo desenho" tornado
+ * literal — nasceu para AND ‖ OR.
+ */
+export interface CompareSpec {
+  kind: "compare";
+  slug: string;
+  title: string;
+  script?: string;
+  subtitle: string;
+  blurb: string;
+  footer?: string[];
+  /** Os lados, na ordem de exibição. Inputs de mesmo id são um só controle. */
+  sides: FlowSpec[];
+}
+
+export type VizSpec = FlowSpec | CompareSpec;
 
 export type VizKind = NonNullable<VizSpec["kind"]>;
 
@@ -27,7 +45,13 @@ export const vizKind = (v: VizSpec): VizKind => v.kind ?? "flow";
  */
 export const vizMeta = (v: VizSpec): string => {
   switch (vizKind(v)) {
-    case "flow":
-      return `${v.nodes.length} princípios · ${v.edges.length} relações`;
+    case "flow": {
+      const f = v as FlowSpec;
+      return `${f.nodes.length} princípios · ${f.edges.length} relações`;
+    }
+    case "compare": {
+      const c = v as CompareSpec;
+      return c.sides.map((s) => s.title).join(" ‖ ");
+    }
   }
 };

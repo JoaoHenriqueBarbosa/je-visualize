@@ -105,36 +105,104 @@ const initialInputs = (spec: FlowSpec): Record<string, SimValue> => {
   return { ...out, ...parseUrl(spec) };
 };
 
-export function useSimulation(spec: FlowSpec): Simulation {
+/**
+ * Inputs compartilhados entre specs (o comparativo): um só estado, um só
+ * toggle, uma só URL. Cada canvas continua com sua própria avaliação — a
+ * mesma entrada atravessa computes diferentes, e é essa diferença que o
+ * comparativo existe para mostrar.
+ */
+export interface SharedSim {
+  inputs: Record<string, SimValue>;
+  toggle: (id: string) => void;
+}
+
+export function useSharedSim(specs: FlowSpec[]): SharedSim {
+  const key = specs.map((s) => s.slug).join("|");
+
+  const initial = useCallback(() => {
+    const out: Record<string, SimValue> = {};
+    for (const spec of specs) Object.assign(out, initialInputs(spec));
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+
+  const [inputs, setInputs] = useState(initial);
+  const touched = useRef(false);
+
+  useEffect(() => {
+    setInputs(initial());
+    touched.current = false;
+  }, [initial]);
+
+  useEffect(() => {
+    if (touched.current) writeUrl(inputs);
+  }, [inputs]);
+
+  const toggle = useCallback(
+    (id: string) => {
+      const owner = specs.find((s) =>
+        s.nodes.some((n) => n.id === id && n.input)
+      );
+      if (!owner) return;
+      const cycle = cycleOf(owner, id);
+      touched.current = true;
+      setInputs((prev) => ({
+        ...prev,
+        [id]: cycle[(cycle.indexOf(prev[id]) + 1) % cycle.length],
+      }));
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [key]
+  );
+
+  return { inputs, toggle };
+}
+
+const sameValues = (
+  a: Record<string, SimValue>,
+  b: Record<string, SimValue>
+) => {
+  const ka = Object.keys(a);
+  return ka.length === Object.keys(b).length && ka.every((k) => a[k] === b[k]);
+};
+
+export function useSimulation(spec: FlowSpec, shared?: SharedSim): Simulation {
   const active = useMemo(
     () => spec.nodes.some((n) => n.input || n.compute),
     [spec]
   );
 
-  const seed = useCallback(
-    (): Simulation["history"] => [
-      { step: 0, values: evaluateSpec(spec, initialInputs(spec)) },
-    ],
-    [spec]
-  );
-
-  const [inputs, setInputs] = useState(() => initialInputs(spec));
-  const [history, setHistory] = useState<Simulation["history"]>(seed);
-  const step = useRef(0);
+  const [localInputs, setLocalInputs] = useState(() => initialInputs(spec));
+  const [history, setHistory] = useState<Simulation["history"]>([]);
   const touched = useRef(false);
 
   // Troca de flow na mesma montagem: recomeça do spec novo, não herda estado.
   useEffect(() => {
-    setInputs(initialInputs(spec));
-    setHistory(seed());
-    step.current = 0;
+    setLocalInputs(initialInputs(spec));
+    setHistory([]);
     touched.current = false;
   }, [spec.slug]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const inputs = shared?.inputs ?? localInputs;
 
   const values = useMemo(
     () => (active ? evaluateSpec(spec, inputs) : {}),
     [spec, inputs, active]
   );
+
+  // O histórico deriva da sequência de estados, venha o toggle de onde vier
+  // (local ou compartilhado): cada estado novo é um passo, o primeiro é o 0.
+  useEffect(() => {
+    if (!active) return;
+    setHistory((h) => {
+      const last = h[h.length - 1];
+      if (last && sameValues(last.values, values)) return h;
+      return [
+        ...h,
+        { step: last ? last.step + 1 : 0, values },
+      ].slice(-HISTORY_MAX);
+    });
+  }, [values, active]);
 
   const activeIds = useMemo(
     () =>
@@ -145,34 +213,31 @@ export function useSimulation(spec: FlowSpec): Simulation {
   );
 
   // A URL só passa a ser escrita depois do primeiro gesto: o link limpo
-  // continua limpo para quem só olha.
+  // continua limpo para quem só olha. Com inputs compartilhados quem escreve
+  // é o dono deles (useSharedSim), nunca o canvas.
   useEffect(() => {
-    if (touched.current) writeUrl(inputs);
-  }, [inputs]);
+    if (!shared && touched.current) writeUrl(inputs);
+  }, [inputs, shared]);
 
-  const toggle = useCallback(
+  const localToggle = useCallback(
     (id: string) => {
       const cycle = cycleOf(spec, id);
       touched.current = true;
-      setInputs((prev) => {
-        const next = {
-          ...prev,
-          [id]: cycle[(cycle.indexOf(prev[id]) + 1) % cycle.length],
-        };
-        step.current += 1;
-        setHistory((h) =>
-          [
-            ...h,
-            { step: step.current, values: evaluateSpec(spec, next) },
-          ].slice(-HISTORY_MAX)
-        );
-        return next;
-      });
+      setLocalInputs((prev) => ({
+        ...prev,
+        [id]: cycle[(cycle.indexOf(prev[id]) + 1) % cycle.length],
+      }));
     },
     [spec]
   );
 
-  return { active, values, activeIds, history, toggle };
+  return {
+    active,
+    values,
+    activeIds,
+    history,
+    toggle: shared?.toggle ?? localToggle,
+  };
 }
 
 const FOCUS_KEY = "foco";

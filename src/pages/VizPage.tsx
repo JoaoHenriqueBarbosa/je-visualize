@@ -18,8 +18,9 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import FlowCanvas from "../flow/FlowCanvas";
+import CompareCanvas from "../viz/CompareCanvas";
 import { collectionBySlug, vizIn } from "../collections";
-import { vizKind, type VizSpec } from "../viz/types";
+import type { VizSpec } from "../viz/types";
 
 /** Ícones em traço, herdando a cor do botão — nada de cor em JS. */
 const IconBack = () => (
@@ -38,8 +39,12 @@ const IconInfo = () => (
 
 /** O corpo, por tipo. Cada kind novo entra aqui com seu renderizador. */
 function VizBody({ spec }: { spec: VizSpec }) {
-  switch (vizKind(spec)) {
-    case "flow":
+  // Switch no próprio `kind` (não em vizKind) para o TS estreitar a união;
+  // o default é o fundador: kind ausente = flow.
+  switch (spec.kind) {
+    case "compare":
+      return <CompareCanvas spec={spec} />;
+    default:
       return <FlowCanvas spec={spec} />;
   }
 }

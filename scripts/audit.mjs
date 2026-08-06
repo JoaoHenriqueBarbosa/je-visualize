@@ -54,31 +54,39 @@ const contains = (outer, inner) =>
   inner.x + inner.w <= outer.x + outer.w + EPS &&
   inner.y + inner.h <= outer.y + outer.h + EPS;
 
-const readScene = () => {
+/**
+ * Uma página pode ter mais de um canvas (o comparativo): cada um é uma cena
+ * própria, lida do seu container `data-viz` e casada com a entrada dele no
+ * registro `window.__vizRegistry` — geometria e simulação nunca vazam de um
+ * canvas para o outro.
+ */
+const readScenes = () => {
   const rect = (el) => {
     const r = el.getBoundingClientRect();
     return { x: r.x, y: r.y, w: r.width, h: r.height };
   };
 
-  const nodes = [];
-  const groups = [];
-  for (const el of document.querySelectorAll(".react-flow__node")) {
-    const id = el.getAttribute("data-id") ?? "";
-    const entry = { id, ...rect(el) };
-    if (id.startsWith("group:")) groups.push({ ...entry, id: id.slice(6) });
-    else nodes.push(entry);
-  }
+  const scenes = [];
+  for (const canvas of document.querySelectorAll("[data-viz]")) {
+    const viz = canvas.getAttribute("data-viz");
+    const nodes = [];
+    const groups = [];
+    for (const el of canvas.querySelectorAll(".react-flow__node")) {
+      const id = el.getAttribute("data-id") ?? "";
+      const entry = { id, ...rect(el) };
+      if (id.startsWith("group:")) groups.push({ ...entry, id: id.slice(6) });
+      else nodes.push(entry);
+    }
 
-  const labels = [];
-  for (const el of document.querySelectorAll(".react-flow__edge-textwrapper")) {
-    const edge = el.closest(".react-flow__edge");
-    labels.push({
-      id: edge?.getAttribute("data-id") ?? "?",
-      ...rect(el),
-    });
-  }
+    const labels = [];
+    for (const el of canvas.querySelectorAll(".react-flow__edge-textwrapper")) {
+      const edge = el.closest(".react-flow__edge");
+      labels.push({ id: edge?.getAttribute("data-id") ?? "?", ...rect(el) });
+    }
 
-  return { nodes, groups, labels };
+    scenes.push({ viz, nodes, groups, labels });
+  }
+  return scenes;
 };
 
 const run = async () => {
@@ -139,88 +147,119 @@ const run = async () => {
     // fitView anima; esperar assentar antes de medir.
     await page.waitForTimeout(900);
 
-    const { nodes, groups, labels } = await page.evaluate(readScene);
+    const scenes = await page.evaluate(readScenes);
     const problems = [];
+    let totals = { nodes: 0, groups: 0, labels: 0, simStates: 0 };
+    // Página sem cena ou cena vazia é falha, não sucesso: um dist velho sem
+    // data-viz já produziu um "ok · 0 nós" falso-verde aqui.
+    if (!scenes.length) problems.push("nenhuma cena encontrada (data-viz)");
+    for (const s of scenes)
+      if (!s.nodes.length) problems.push(`cena "${s.viz}" sem nós`);
+    // Numa página de um canvas só, o prefixo de cena é ruído.
+    const tagOf = (viz) => (scenes.length > 1 ? `[${viz}] ` : "");
 
-    // 1. cartão contra cartão
-    for (let i = 0; i < nodes.length; i++)
-      for (let j = i + 1; j < nodes.length; j++)
-        if (overlaps(nodes[i], nodes[j]))
-          problems.push(`sobreposição: ${nodes[i].id} × ${nodes[j].id}`);
+    for (const { viz, nodes, groups, labels } of scenes) {
+      totals.nodes += nodes.length;
+      totals.groups += groups.length;
+      totals.labels += labels.length;
 
-    // 2 e 3. molduras
-    const membership = await page.evaluate(() =>
-      window.__flowMembership ?? {}
-    );
-    for (const g of groups) {
-      const members = membership[g.id] ?? [];
-      for (const n of nodes) {
-        const isMember = members.includes(n.id);
-        if (isMember && !contains(g, n))
-          problems.push(`moldura "${g.id}" não contém membro ${n.id}`);
-        if (!isMember && overlaps(g, n))
-          problems.push(`moldura "${g.id}" invade ${n.id}`);
-      }
-    }
-
-    // 4. rótulo contra cartão
-    for (const l of labels)
-      for (const n of nodes)
-        if (overlaps(l, n))
-          problems.push(`rótulo "${l.id}" por cima do cartão ${n.id}`);
-
-    // 5. simulação — clica cada combinação de entradas e cobra coerência
-    // entre o estado (window.__sim*) e o que o DOM mostra. A última
-    // combinação é a de tudo em 1, de propósito: o screenshot sai energizado.
-    const simMeta = await page.evaluate(() => window.__simMeta ?? null);
-    let simStates = 0;
-    if (simMeta?.inputs?.length) {
-      const combos = simMeta.inputs.reduce(
-        (acc, input) =>
-          acc.flatMap((c) => input.cycle.map((v) => [...c, [input.id, v]])),
-        [[]]
-      );
-
-      for (const combo of combos.slice(0, 16)) {
-        for (const [id, target] of combo) {
-          for (let k = 0; k < 4; k++) {
-            const cur = await page.evaluate(
-              (i) => window.__simValues?.[i],
-              id
+      // 1. cartão contra cartão
+      for (let i = 0; i < nodes.length; i++)
+        for (let j = i + 1; j < nodes.length; j++)
+          if (overlaps(nodes[i], nodes[j]))
+            problems.push(
+              `${tagOf(viz)}sobreposição: ${nodes[i].id} × ${nodes[j].id}`
             );
-            if (String(cur) === String(target)) break;
-            await page.click(`.react-flow__node[data-id="${id}"]`);
-            await page.waitForTimeout(50);
-          }
-        }
-        simStates += 1;
 
-        const mismatches = await page.evaluate(() => {
-          const values = window.__simValues ?? {};
-          const active = new Set(window.__simActive ?? []);
-          const out = [];
-          for (const el of document.querySelectorAll(
-            ".react-flow__node .concept"
-          )) {
-            const id = el
-              .closest(".react-flow__node")
-              ?.getAttribute("data-id");
-            const badge = el.querySelector(".concept-value");
-            if (badge) {
-              if (el.classList.contains("is-on") !== !!values[id])
-                out.push(`is-on incoerente em ${id}`);
-              if (badge.textContent !== String(values[id]))
-                out.push(
-                  `badge de ${id} mostra "${badge.textContent}", valor é ${values[id]}`
-                );
+      // 2 e 3. molduras
+      const membership = await page.evaluate(
+        (v) => window.__vizRegistry?.[v]?.membership ?? {},
+        viz
+      );
+      for (const g of groups) {
+        const members = membership[g.id] ?? [];
+        for (const n of nodes) {
+          const isMember = members.includes(n.id);
+          if (isMember && !contains(g, n))
+            problems.push(
+              `${tagOf(viz)}moldura "${g.id}" não contém membro ${n.id}`
+            );
+          if (!isMember && overlaps(g, n))
+            problems.push(`${tagOf(viz)}moldura "${g.id}" invade ${n.id}`);
+        }
+      }
+
+      // 4. rótulo contra cartão
+      for (const l of labels)
+        for (const n of nodes)
+          if (overlaps(l, n))
+            problems.push(
+              `${tagOf(viz)}rótulo "${l.id}" por cima do cartão ${n.id}`
+            );
+
+      // 5. simulação — clica cada combinação de entradas e cobra coerência
+      // entre o estado (registro do canvas) e o que o DOM daquele canvas
+      // mostra. A última combinação é a de tudo em 1, de propósito: o
+      // screenshot sai energizado.
+      const simMeta = await page.evaluate(
+        (v) => window.__vizRegistry?.[v]?.sim ?? null,
+        viz
+      );
+      if (simMeta?.inputs?.length) {
+        const combos = simMeta.inputs.reduce(
+          (acc, input) =>
+            acc.flatMap((c) => input.cycle.map((v) => [...c, [input.id, v]])),
+          [[]]
+        );
+
+        for (const combo of combos.slice(0, 16)) {
+          for (const [id, target] of combo) {
+            for (let k = 0; k < 4; k++) {
+              const cur = await page.evaluate(
+                ([v, i]) => window.__vizRegistry?.[v]?.values?.[i],
+                [viz, id]
+              );
+              if (String(cur) === String(target)) break;
+              await page.click(
+                `[data-viz="${viz}"] .react-flow__node[data-id="${id}"]`
+              );
+              await page.waitForTimeout(50);
             }
-            if (el.classList.contains("is-active") !== active.has(id))
-              out.push(`is-active incoerente em ${id}`);
           }
-          return out;
-        });
-        for (const m of mismatches)
-          problems.push(`sim ${combo.map(([i, v]) => `${i}=${v}`).join(",")}: ${m}`);
+          totals.simStates += 1;
+
+          const mismatches = await page.evaluate((v) => {
+            const entry = window.__vizRegistry?.[v] ?? {};
+            const values = entry.values ?? {};
+            const active = new Set(entry.activeIds ?? []);
+            const out = [];
+            for (const el of document.querySelectorAll(
+              `[data-viz="${v}"] .react-flow__node .concept`
+            )) {
+              const id = el
+                .closest(".react-flow__node")
+                ?.getAttribute("data-id");
+              const badge = el.querySelector(".concept-value");
+              if (badge) {
+                if (el.classList.contains("is-on") !== !!values[id])
+                  out.push(`is-on incoerente em ${id}`);
+                if (badge.textContent !== String(values[id]))
+                  out.push(
+                    `badge de ${id} mostra "${badge.textContent}", valor é ${values[id]}`
+                  );
+              }
+              if (el.classList.contains("is-active") !== active.has(id))
+                out.push(`is-active incoerente em ${id}`);
+            }
+            return out;
+          }, viz);
+          for (const m of mismatches)
+            problems.push(
+              `${tagOf(viz)}sim ${combo
+                .map(([i, v]) => `${i}=${v}`)
+                .join(",")}: ${m}`
+            );
+        }
       }
     }
 
@@ -228,9 +267,10 @@ const run = async () => {
 
     const tag = problems.length ? "FALHA" : "ok   ";
     console.log(
-      `${tag} ${slug.padEnd(24)} ${String(nodes.length).padStart(2)} nós · ` +
-        `${groups.length} molduras · ${labels.length} rótulos` +
-        (simStates ? ` · sim ${simStates} estados` : "")
+      `${tag} ${slug.padEnd(24)} ${String(totals.nodes).padStart(2)} nós · ` +
+        `${totals.groups} molduras · ${totals.labels} rótulos` +
+        (totals.simStates ? ` · sim ${totals.simStates} estados` : "") +
+        (scenes.length > 1 ? ` · ${scenes.length} cenas` : "")
     );
     for (const p of problems) console.log(`        · ${p}`);
     for (const w of warnings) console.log(`        ! ${w}`);

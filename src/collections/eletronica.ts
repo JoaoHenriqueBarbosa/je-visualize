@@ -16,6 +16,7 @@ import {
   portaNand,
   portaNor,
   portaXor,
+  serieVsParalelo,
   osciloscopio,
 } from "../flows/eletronica";
 
@@ -32,6 +33,7 @@ export const eletronica: CollectionSpec = {
   vizes: [
     portaAnd,
     portaOr,
+    serieVsParalelo,
     portaNot,
     portaNand,
     portaNor,

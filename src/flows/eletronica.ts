@@ -16,6 +16,7 @@
  */
 
 import type { FlowSpec, NodeSpec, SimValue } from "../flow/types";
+import type { CompareSpec } from "../viz/types";
 
 /**
  * Cor por função, e não por decoração — mesma regra da paleta do sāṃkhya:
@@ -473,6 +474,27 @@ export const portaNor: FlowSpec = {
     },
     { from: "porta", to: "paralelo-inverso", kind: "aside", accent: E.nota },
   ],
+};
+
+/**
+ * O argumento da coleção tornado literal: os dois flows sempre foram o mesmo
+ * desenho, e aqui dividem até as entradas — alternar A alterna nos dois.
+ * O que resta de diferente é exatamente o assunto: série vs paralelo.
+ */
+export const serieVsParalelo: CompareSpec = {
+  kind: "compare",
+  slug: "serie-vs-paralelo",
+  title: "série ‖ paralelo",
+  script: "∧‖∨",
+  subtitle:
+    "As mesmas entradas atravessando as duas formas mínimas. Alterne e veja onde elas discordam.",
+  blurb:
+    "AND e OR lado a lado, com os mesmos controles: a diferença entre as portas fica sendo a única coisa que muda na tela.",
+  footer: [
+    "uma entrada, dois destinos",
+    "Concordam em 0,0 e em 1,1. Discordam exatamente quando uma só conduz: a série ainda não fechou, o paralelo já fechou.",
+  ],
+  sides: [portaAnd, portaOr],
 };
 
 export const osciloscopio: FlowSpec = {

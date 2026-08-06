@@ -33,6 +33,7 @@ import {
   readFocus,
   useSimulation,
   writeFocus,
+  type SharedSim,
 } from "../viz/sim";
 import type { EdgeKind, FlowSpec, NodeSpec, SimValue } from "./types";
 import "./flow.css";
@@ -52,22 +53,34 @@ const strokeFor = (kind: EdgeKind) => {
   }
 };
 
-export default function FlowCanvas({ spec }: { spec: FlowSpec }) {
+export default function FlowCanvas({
+  spec,
+  shared,
+  urlSync = true,
+}: {
+  spec: FlowSpec;
+  /** Inputs de fora (comparativo): o canvas usa e alterna, mas não possui. */
+  shared?: SharedSim;
+  /** false quando outro dono escreve a URL (o comparativo, pelos dois). */
+  urlSync?: boolean;
+}) {
   const { measurements, stage } = useMeasurements(spec);
-  const sim = useSimulation(spec);
+  const sim = useSimulation(spec, shared);
 
-  const [focus, setFocus] = useState<string | null>(() => readFocus(spec));
+  const [focus, setFocus] = useState<string | null>(() =>
+    urlSync ? readFocus(spec) : null
+  );
   const focusTouched = useRef(false);
 
   // Troca de flow na mesma montagem: o foco do anterior não atravessa.
   useEffect(() => {
-    setFocus(readFocus(spec));
+    setFocus(urlSync ? readFocus(spec) : null);
     focusTouched.current = false;
   }, [spec.slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (focusTouched.current) writeFocus(focus);
-  }, [focus]);
+    if (urlSync && focusTouched.current) writeFocus(focus);
+  }, [focus, urlSync]);
 
   useEffect(() => {
     if (!focus) return;
@@ -199,35 +212,44 @@ export default function FlowCanvas({ spec }: { spec: FlowSpec }) {
 
     // O script de auditoria precisa saber quem pertence a qual moldura para
     // distinguir "contém o membro" de "invade o estranho" — e, na simulação,
-    // o que o estado deveria ser para conferir com o que o DOM mostra.
+    // o que o estado deveria ser para conferir com o que o DOM mostra. O
+    // registro é POR CANVAS (chave = slug, casada com data-viz no DOM):
+    // o comparativo põe dois canvases na mesma página e globals disputariam.
     const w = window as unknown as {
-      __flowMembership?: Record<string, string[]>;
-      __simMeta?: { inputs: { id: string; cycle: unknown[] }[] } | null;
-      __simValues?: Record<string, unknown>;
-      __simActive?: string[];
+      __vizRegistry?: Record<string, unknown>;
     };
-    w.__flowMembership = Object.fromEntries(
-      (spec.groups ?? []).map((g) => [
-        g.id,
-        spec.nodes.filter((n) => n.group === g.id).map((n) => n.id),
-      ])
-    );
-    w.__simMeta = sim.active
-      ? {
-          inputs: spec.nodes
-            .filter((n) => n.input)
-            .map((n) => ({ id: n.id, cycle: n.input!.cycle ?? [0, 1] })),
-        }
-      : null;
-    w.__simValues = sim.values;
-    w.__simActive = sim.activeIds;
+    (w.__vizRegistry ??= {})[spec.slug] = {
+      membership: Object.fromEntries(
+        (spec.groups ?? []).map((g) => [
+          g.id,
+          spec.nodes.filter((n) => n.group === g.id).map((n) => n.id),
+        ])
+      ),
+      sim: sim.active
+        ? {
+            inputs: spec.nodes
+              .filter((n) => n.input)
+              .map((n) => ({ id: n.id, cycle: n.input!.cycle ?? [0, 1] })),
+          }
+        : null,
+      values: sim.values,
+      activeIds: sim.activeIds,
+    };
 
     return { nodes, edges };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spec, measurements, sim.active, sim.values, sim.activeIds, sim.history, focusSet]);
 
+  // Sai do registro ao desmontar: numa SPA a entrada sobreviveria à rota.
+  useEffect(() => {
+    return () => {
+      delete (window as unknown as { __vizRegistry?: Record<string, unknown> })
+        .__vizRegistry?.[spec.slug];
+    };
+  }, [spec.slug]);
+
   return (
-    <div className={`flow-canvas ${sim.active ? "sim" : ""}`}>
+    <div className={`flow-canvas ${sim.active ? "sim" : ""}`} data-viz={spec.slug}>
       {stage}
       {graph && (
         <ReactFlow
