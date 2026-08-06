@@ -64,6 +64,8 @@
   --card-w-compact: 160px;
   --card-pad-y: 14px;
   --card-pad-x: 16px;
+  /* altura do chart num cartão-instrumento: entrada do motor também */
+  --card-chart-h: 118px;
 
   /* colunas de página */
   --page-w: 760px;

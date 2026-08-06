@@ -475,6 +475,93 @@ export const portaNor: FlowSpec = {
   ],
 };
 
+export const osciloscopio: FlowSpec = {
+  slug: "osciloscopio",
+  title: "osciloscópio",
+  script: "∿",
+  subtitle:
+    "O tempo entra no diagrama: cada alternância vira um degrau nas ondas.",
+  blurb:
+    "Uma porta sob teste e dois instrumentos: um escreve o que você faz, o outro varre as quatro combinações de uma vez.",
+  footer: [
+    "a mesma porta, dois olhares: o gesto e o mapa",
+    "O osciloscópio mostra a história que você produziu; a varredura mostra todas as histórias possíveis. A tabela verdade é uma onda dobrada.",
+  ],
+  nodes: [
+    // As mesmas entradas das portas, mas nas colunas dos instrumentos: cada
+    // fronteira de coluna precisa de um par que se cruze na vertical (o trio
+    // do rank 1), senão a compactação recolhe o eixo — foi o que aconteceu
+    // com o diamante em cinco colunas.
+    { ...entradas[0], column: -2 },
+    { ...entradas[1], column: 2 },
+    {
+      id: "s",
+      script: "∧",
+      label: "porta sob teste",
+      gloss: "S = A ∧ B",
+      detail:
+        "Uma AND servindo de objeto de medida. Qualquer porta serviria — o que muda nas ondas é onde o degrau de S aparece, e é exatamente isso que o instrumento existe para mostrar.",
+      accent: E.porta,
+      rank: 1,
+      column: 0,
+      compute: (v) => bit(v.a && v.b),
+    },
+    {
+      id: "scope",
+      script: "∿",
+      label: "osciloscópio",
+      gloss: "escreve o que você faz",
+      accent: E.saida,
+      // Mesmo rank da porta, flanqueando: instrumentos abaixo deixavam a
+      // coluna 0 sem vizinho vertical e a compactação recolhia o eixo.
+      rank: 1,
+      column: -2,
+      chart: {
+        type: "wave",
+        watch: [
+          { id: "a", label: "A" },
+          { id: "b", label: "B" },
+          { id: "s", label: "S" },
+        ],
+      },
+    },
+    {
+      id: "varredura",
+      script: "⊞",
+      label: "varredura",
+      gloss: "as quatro combinações",
+      accent: E.nota,
+      rank: 1,
+      column: 2,
+      chart: {
+        type: "wave",
+        watch: [
+          { id: "a", label: "A" },
+          { id: "b", label: "B" },
+          { id: "s", label: "S" },
+        ],
+        sweep: [
+          { a: 0, b: 0 },
+          { a: 0, b: 1 },
+          { a: 1, b: 0 },
+          { a: 1, b: 1 },
+        ],
+      },
+    },
+  ],
+  edges: [
+    ...arestasDeEntrada,
+    {
+      from: "s",
+      to: "scope",
+      kind: "flow",
+      label: "sonda",
+      accent: E.saida,
+    },
+    { from: "s", to: "varredura", kind: "aside", accent: E.nota },
+  ],
+};
+
 export const portaXor: FlowSpec = {
   slug: "porta-xor",
   title: "porta XOR",

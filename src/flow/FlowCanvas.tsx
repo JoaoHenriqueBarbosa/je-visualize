@@ -29,11 +29,12 @@ import { nodeTypes } from "./nodes";
 import { useMeasurements } from "./Measurer";
 import {
   causalClosure,
+  evaluateSpec,
   readFocus,
   useSimulation,
   writeFocus,
 } from "../viz/sim";
-import type { EdgeKind, FlowSpec } from "./types";
+import type { EdgeKind, FlowSpec, NodeSpec, SimValue } from "./types";
 import "./flow.css";
 
 const DEFAULT_ACCENT = "#9b9484";
@@ -85,6 +86,26 @@ export default function FlowCanvas({ spec }: { spec: FlowSpec }) {
     [spec, focus]
   );
 
+  // Séries e amostras de um cartão-instrumento. Com `sweep`, cada estado da
+  // varredura passa pelo MESMO avaliador da simulação; sem, a fonte é o
+  // histórico do que o leitor alternou.
+  const chartFor = (n: NodeSpec) => {
+    if (!n.chart) return undefined;
+    const accentOf = (id: string) =>
+      spec.nodes.find((x) => x.id === id)?.accent ?? DEFAULT_ACCENT;
+    const series = n.chart.watch.map((w) => ({
+      id: w.id,
+      label: w.label ?? w.id,
+      accent: accentOf(w.id),
+    }));
+    const defaults: Record<string, SimValue> = {};
+    for (const x of spec.nodes) if (x.input) defaults[x.id] = x.input.initial;
+    const rows = n.chart.sweep
+      ? n.chart.sweep.map((s) => evaluateSpec(spec, { ...defaults, ...s }))
+      : sim.history.map((h) => h.values);
+    return { series, rows };
+  };
+
   const graph = useMemo(() => {
     if (!measurements) return null;
     const result = layout({ spec, ...measurements });
@@ -125,6 +146,7 @@ export default function FlowCanvas({ spec }: { spec: FlowSpec }) {
                 : undefined,
             active: sim.activeIds.includes(n.id),
             dimmed: focusSet ? !focusSet.has(n.id) : false,
+            chart: chartFor(n),
           },
         },
         width: r.w,
@@ -201,7 +223,8 @@ export default function FlowCanvas({ spec }: { spec: FlowSpec }) {
     w.__simActive = sim.activeIds;
 
     return { nodes, edges };
-  }, [spec, measurements, sim.active, sim.values, sim.activeIds, focusSet]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spec, measurements, sim.active, sim.values, sim.activeIds, sim.history, focusSet]);
 
   return (
     <div className={`flow-canvas ${sim.active ? "sim" : ""}`}>

@@ -20,6 +20,21 @@ export type Side = "t" | "b" | "l" | "r";
 /** Valor que circula na simulação: nível lógico, número, símbolo. */
 export type SimValue = number | string | boolean;
 
+/** Um sinal observado por um cartão-instrumento. */
+export interface ChartWatch {
+  id: string;
+  /** Rótulo da faixa. Default: o próprio id. */
+  label?: string;
+}
+
+export interface ChartSpec {
+  /** Por ora só onda digital (faixas step). Outros tipos entram por fase. */
+  type: "wave";
+  watch: ChartWatch[];
+  /** Varredura estática: cada item é um estado de entradas a avaliar. */
+  sweep?: Record<string, SimValue>[];
+}
+
 export interface NodeSpec {
   id: string;
   /** Grafia nativa ou símbolo, opcional: devanāgarī, glifo, notação. */
@@ -53,6 +68,14 @@ export interface NodeSpec {
 
   /** Torna o cartão um controle: o clique alterna pelos valores do ciclo. */
   input?: { initial: SimValue; cycle?: SimValue[] };
+  /**
+   * Torna o cartão um instrumento: desenha os sinais observados. Sem
+   * `sweep`, a fonte é o histórico da simulação (o que o leitor alternou);
+   * com `sweep`, é a varredura estática — cada entrada avaliada pelo spec.
+   * A altura do chart é `--card-chart-h` (globals.css): entrada do motor,
+   * medida como tudo o mais.
+   */
+  chart?: ChartSpec;
   /**
    * Deriva o valor deste nó dos valores correntes, por id. Avaliado por
    * relaxamento, então pode ler qualquer nó — inclusive num ciclo (latch),

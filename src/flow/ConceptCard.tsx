@@ -12,6 +12,7 @@
  */
 
 import type { NodeSpec, SimValue } from "./types";
+import ChartCard, { type ChartData } from "./ChartCard";
 
 export interface CardState {
   /** Valor corrente do nó, se a simulação tem um para ele. */
@@ -20,6 +21,8 @@ export interface CardState {
   active?: boolean;
   /** Fora do fecho do modo foco. */
   dimmed?: boolean;
+  /** Séries e amostras resolvidas para o cartão-instrumento. */
+  chart?: ChartData;
 }
 
 export default function ConceptCard({
@@ -68,6 +71,23 @@ export default function ConceptCard({
       <div className="concept-label">{node.label}</div>
       {node.gloss && <div className="concept-gloss">{node.gloss}</div>}
       {node.detail && <div className="concept-detail">{node.detail}</div>}
+      {node.chart && (
+        // Na medição não há estado: o mesmo componente renderiza com séries
+        // vazias de dado mas mesmos rótulos — a caixa medida é idêntica à
+        // caixa viva, que é o contrato de tudo aqui.
+        <ChartCard
+          data={
+            state?.chart ?? {
+              series: node.chart.watch.map((w) => ({
+                id: w.id,
+                label: w.label ?? w.id,
+                accent: "",
+              })),
+              rows: [],
+            }
+          }
+        />
+      )}
     </div>
   );
 }

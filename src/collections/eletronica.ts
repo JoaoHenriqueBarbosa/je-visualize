@@ -16,6 +16,7 @@ import {
   portaNand,
   portaNor,
   portaXor,
+  osciloscopio,
 } from "../flows/eletronica";
 
 export const eletronica: CollectionSpec = {
@@ -28,5 +29,13 @@ export const eletronica: CollectionSpec = {
     "Uma porta não decide nada: ela é um arranjo de chaves onde a corrente ou tem por onde passar ou não tem. Série e paralelo são as duas formas mínimas; com o inversor, geram todas as outras. As entradas são clicáveis — os diagramas conduzem de verdade.",
   footer: "Sem grafia nativa: nem todo assunto tem uma, e o tema aguenta.",
   theme: "theme-eletronica",
-  vizes: [portaAnd, portaOr, portaNot, portaNand, portaNor, portaXor],
+  vizes: [
+    portaAnd,
+    portaOr,
+    portaNot,
+    portaNand,
+    portaNor,
+    portaXor,
+    osciloscopio,
+  ],
 };

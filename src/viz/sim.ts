@@ -31,13 +31,24 @@ export interface Simulation {
   values: Record<string, SimValue>;
   /** Ids com `activeWhen` verdadeiro agora. */
   activeIds: string[];
-  /** Inputs já alternados, em ordem — o histórico que alimenta os charts. */
+  /**
+   * A linha do tempo: o estado inicial no passo 0 e um passo por alternância.
+   * É o que os cartões-instrumento desenham. Limitado aos últimos
+   * HISTORY_MAX passos — osciloscópio tem tela, não memória infinita.
+   */
   history: { step: number; values: Record<string, SimValue> }[];
   toggle: (id: string) => void;
 }
 
-/** Avalia derivados por relaxamento a partir dos inputs correntes. */
-const evaluate = (
+/** Passos retidos no histórico. */
+const HISTORY_MAX = 64;
+
+/**
+ * Avalia derivados por relaxamento a partir dos inputs correntes. Exportada
+ * porque os cartões-instrumento com `sweep` avaliam o spec para cada estado
+ * da varredura — o mesmo avaliador, nunca uma segunda lógica.
+ */
+export const evaluateSpec = (
   spec: FlowSpec,
   inputs: Record<string, SimValue>
 ): Record<string, SimValue> => {
@@ -100,21 +111,28 @@ export function useSimulation(spec: FlowSpec): Simulation {
     [spec]
   );
 
+  const seed = useCallback(
+    (): Simulation["history"] => [
+      { step: 0, values: evaluateSpec(spec, initialInputs(spec)) },
+    ],
+    [spec]
+  );
+
   const [inputs, setInputs] = useState(() => initialInputs(spec));
-  const [history, setHistory] = useState<Simulation["history"]>([]);
+  const [history, setHistory] = useState<Simulation["history"]>(seed);
   const step = useRef(0);
   const touched = useRef(false);
 
   // Troca de flow na mesma montagem: recomeça do spec novo, não herda estado.
   useEffect(() => {
     setInputs(initialInputs(spec));
-    setHistory([]);
+    setHistory(seed());
     step.current = 0;
     touched.current = false;
   }, [spec.slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const values = useMemo(
-    () => (active ? evaluate(spec, inputs) : {}),
+    () => (active ? evaluateSpec(spec, inputs) : {}),
     [spec, inputs, active]
   );
 
@@ -142,10 +160,12 @@ export function useSimulation(spec: FlowSpec): Simulation {
           [id]: cycle[(cycle.indexOf(prev[id]) + 1) % cycle.length],
         };
         step.current += 1;
-        setHistory((h) => [
-          ...h,
-          { step: step.current, values: evaluate(spec, next) },
-        ]);
+        setHistory((h) =>
+          [
+            ...h,
+            { step: step.current, values: evaluateSpec(spec, next) },
+          ].slice(-HISTORY_MAX)
+        );
         return next;
       });
     },

@@ -205,6 +205,27 @@
   opacity: var(--wire-off, 0.45);
 }
 
+/* ---------------------------------------------------------- instrumento */
+
+/* A caixa do chart é fixa por CSS — o ChartCard lê e entrega ao Recharts
+   width/height numéricos. Medição e cena veem a mesma caixa. */
+.concept-chart {
+  height: var(--card-chart-h);
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-2);
+  border-top: var(--bw) solid var(--rule);
+}
+
+.concept-chart-legend {
+  display: flex;
+  gap: var(--sp-4);
+  margin-top: var(--sp-1);
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--ls-wide);
+  font-family: var(--font-display, var(--font-body));
+  color: var(--dim);
+}
+
 /* ------------------------------------------------------------- modo foco */
 
 .concept,
