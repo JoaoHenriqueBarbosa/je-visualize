@@ -85,6 +85,43 @@ export interface LayoutResult {
 
 const kindOf = (e: EdgeSpec) => e.kind ?? "flow";
 
+/**
+ * Lados de âncora derivados da geometria FINAL: eixo dominante decide, o
+ * autor pode forçar. Exportada porque todo posicionador termina aqui — o
+ * polar (viz/layouts/polar.ts) deriva os lados exatamente como a grade.
+ */
+export const placeEdges = (
+  spec: FlowSpec,
+  nodes: Record<string, Rect>
+): PlacedEdge[] =>
+  spec.edges.map((e) => {
+    const a = nodes[e.from];
+    const b = nodes[e.to];
+    let fromSide: Side;
+    let toSide: Side;
+
+    if (!a || !b) {
+      fromSide = "b";
+      toSide = "t";
+    } else {
+      const dx = b.x + b.w / 2 - (a.x + a.w / 2);
+      const dy = b.y + b.h / 2 - (a.y + a.h / 2);
+      if (Math.abs(dy) >= Math.abs(dx)) {
+        fromSide = dy > 0 ? "b" : "t";
+        toSide = dy > 0 ? "t" : "b";
+      } else {
+        fromSide = dx > 0 ? "r" : "l";
+        toSide = dx > 0 ? "l" : "r";
+      }
+    }
+
+    return {
+      spec: e,
+      fromSide: e.fromSide ?? fromSide,
+      toSide: e.toSide ?? toSide,
+    };
+  });
+
 export function layout(input: LayoutInput): LayoutResult {
   const { spec, nodeSizes, edgeLabelSizes, groupLegendSizes } = input;
 
@@ -385,33 +422,7 @@ export function layout(input: LayoutInput): LayoutResult {
     ? Math.max(...occupied.map((r) => r.x + r.w)) + padRight
     : padLeft + padRight;
 
-  const edges: PlacedEdge[] = spec.edges.map((e) => {
-    const a = nodes[e.from];
-    const b = nodes[e.to];
-    let fromSide: Side;
-    let toSide: Side;
-
-    if (!a || !b) {
-      fromSide = "b";
-      toSide = "t";
-    } else {
-      const dx = b.x + b.w / 2 - (a.x + a.w / 2);
-      const dy = b.y + b.h / 2 - (a.y + a.h / 2);
-      if (Math.abs(dy) >= Math.abs(dx)) {
-        fromSide = dy > 0 ? "b" : "t";
-        toSide = dy > 0 ? "t" : "b";
-      } else {
-        fromSide = dx > 0 ? "r" : "l";
-        toSide = dx > 0 ? "l" : "r";
-      }
-    }
-
-    return {
-      spec: e,
-      fromSide: e.fromSide ?? fromSide,
-      toSide: e.toSide ?? toSide,
-    };
-  });
+  const edges = placeEdges(spec, nodes);
 
   return {
     nodes,

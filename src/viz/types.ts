@@ -12,7 +12,133 @@
  * despachar o corpo. Auditoria e rotas não sabem que tipos existem.
  */
 
-import type { FlowSpec, Side } from "../flow/types";
+import type { EdgeSpec, FlowSpec, NodeSpec, Side } from "../flow/types";
+
+/**
+ * Ciclo: nós num anel, na ordem declarada, com um centro opcional que
+ * preside. O layout é polar (src/viz/layouts/polar.ts) — o primeiro
+ * posicionador não-cartesiano do motor, com a mesma regra de sempre: mede
+ * primeiro, decide depois. Rank e column não existem aqui; a ordem do array
+ * é a topologia.
+ */
+export interface CycleSpec {
+  kind: "cycle";
+  slug: string;
+  title: string;
+  script?: string;
+  subtitle: string;
+  blurb: string;
+  footer?: string[];
+  /** O que preside o ciclo, no centro. Opcional. */
+  center?: NodeSpec;
+  /** Os nós do anel, em ordem horária a partir do topo. */
+  ring: NodeSpec[];
+  edges: EdgeSpec[];
+}
+
+/**
+ * Escala: um eixo contínuo com faixas e marcas. Nada de grade — a posição É
+ * o valor, e é isso que o tipo existe para mostrar.
+ */
+export interface ScaleBandSpec {
+  from: number;
+  to: number;
+  label: string;
+  gloss?: string;
+  detail?: string;
+  accent?: string;
+}
+
+export interface ScaleMarkSpec {
+  at: number;
+  label: string;
+  gloss?: string;
+  accent?: string;
+  /** Lado do rótulo. Marcas de saída à esquerda, de entrada à direita, etc. */
+  side?: "l" | "r";
+}
+
+export interface ScaleSpec {
+  kind: "scale";
+  slug: string;
+  title: string;
+  script?: string;
+  subtitle: string;
+  blurb: string;
+  footer?: string[];
+  min: number;
+  max: number;
+  unit?: string;
+  bands: ScaleBandSpec[];
+  marks?: ScaleMarkSpec[];
+}
+
+/** Sankey: fluxo com quantidade — a espessura é o valor. */
+export interface SankeySpec {
+  kind: "sankey";
+  slug: string;
+  title: string;
+  script?: string;
+  subtitle: string;
+  blurb: string;
+  footer?: string[];
+  nodes: { id: string; label: string; script?: string; accent?: string }[];
+  links: { from: string; to: string; value: number; label?: string }[];
+}
+
+/**
+ * Venn aninhado: conjuntos concêntricos, do menor para o maior — cada anel
+ * é o que o conjunto de fora acrescenta ao de dentro. (O modo de círculos
+ * sobrepostos entra quando um assunto pedir interseção parcial de verdade.)
+ */
+export interface VennSpec {
+  kind: "venn";
+  slug: string;
+  title: string;
+  script?: string;
+  subtitle: string;
+  blurb: string;
+  footer?: string[];
+  mode: "nested";
+  /** Do mais interno ao mais externo. */
+  sets: { id: string; label: string; note?: string; accent?: string }[];
+  items: { id: string; label: string; script?: string; set: string }[];
+}
+
+/**
+ * Explodido: uma figura em grade (coordenadas topológicas, nunca pixel) com
+ * cartões-legenda ancorados por camada nos dois lados.
+ */
+export interface FigureCellSpec {
+  id: string;
+  label: string;
+  script?: string;
+  accent?: string;
+  row: number;
+  /** Colunas da grade CSS (1-based, fim exclusivo como no grid). */
+  colStart: number;
+  colEnd: number;
+}
+
+export interface ExplodedSpec {
+  kind: "exploded";
+  slug: string;
+  title: string;
+  script?: string;
+  subtitle: string;
+  blurb: string;
+  footer?: string[];
+  /** Número de colunas da grade da figura. */
+  cols: number;
+  cells: FigureCellSpec[];
+  callouts: {
+    target: string;
+    label: string;
+    gloss?: string;
+    detail?: string;
+    side: "l" | "r";
+  }[];
+}
 
 /**
  * Um estado do autômato. Deliberadamente um subconjunto do NodeSpec: sem
@@ -138,7 +264,16 @@ export interface RecordsSpec {
   views: RecordViewSpec[];
 }
 
-export type VizSpec = FlowSpec | CompareSpec | MachineSpec | RecordsSpec;
+export type VizSpec =
+  | FlowSpec
+  | CompareSpec
+  | MachineSpec
+  | RecordsSpec
+  | CycleSpec
+  | ScaleSpec
+  | SankeySpec
+  | VennSpec
+  | ExplodedSpec;
 
 export type VizKind = NonNullable<VizSpec["kind"]>;
 
@@ -166,6 +301,26 @@ export const vizMeta = (v: VizSpec): string => {
     case "records": {
       const r = v as RecordsSpec;
       return `${r.rows.length} registros · ${r.views.length} vistas`;
+    }
+    case "cycle": {
+      const c = v as CycleSpec;
+      return `${c.ring.length} no anel${c.center ? " · 1 no centro" : ""}`;
+    }
+    case "scale": {
+      const s = v as ScaleSpec;
+      return `${s.bands.length} faixas · ${s.marks?.length ?? 0} marcas`;
+    }
+    case "sankey": {
+      const s = v as SankeySpec;
+      return `${s.nodes.length} nós · ${s.links.length} fluxos`;
+    }
+    case "venn": {
+      const s = v as VennSpec;
+      return `${s.sets.length} conjuntos · ${s.items.length} itens`;
+    }
+    case "exploded": {
+      const e = v as ExplodedSpec;
+      return `${e.cells.length} camadas · ${e.callouts.length} legendas`;
     }
   }
 };

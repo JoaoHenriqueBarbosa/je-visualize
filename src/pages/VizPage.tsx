@@ -21,6 +21,11 @@ import FlowCanvas from "../flow/FlowCanvas";
 import CompareCanvas from "../viz/CompareCanvas";
 import MachineCanvas from "../viz/MachineCanvas";
 import RecordsCanvas from "../viz/RecordsCanvas";
+import CycleCanvas from "../viz/CycleCanvas";
+import ScaleCanvas from "../viz/ScaleCanvas";
+import SankeyCanvas from "../viz/SankeyCanvas";
+import VennCanvas from "../viz/VennCanvas";
+import ExplodedCanvas from "../viz/ExplodedCanvas";
 import { collectionBySlug, vizIn } from "../collections";
 import type { VizSpec } from "../viz/types";
 
@@ -50,6 +55,16 @@ function VizBody({ spec }: { spec: VizSpec }) {
       return <MachineCanvas spec={spec} />;
     case "records":
       return <RecordsCanvas spec={spec} />;
+    case "cycle":
+      return <CycleCanvas spec={spec} />;
+    case "scale":
+      return <ScaleCanvas spec={spec} />;
+    case "sankey":
+      return <SankeyCanvas spec={spec} />;
+    case "venn":
+      return <VennCanvas spec={spec} />;
+    case "exploded":
+      return <ExplodedCanvas spec={spec} />;
     default:
       return <FlowCanvas spec={spec} />;
   }

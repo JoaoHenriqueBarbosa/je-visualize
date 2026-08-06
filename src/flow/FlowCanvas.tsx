@@ -24,7 +24,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
-import { layout } from "./layout";
+import { layout, type LayoutInput, type LayoutResult } from "./layout";
 import { nodeTypes } from "./nodes";
 import { useMeasurements } from "./Measurer";
 import {
@@ -67,6 +67,7 @@ export default function FlowCanvas({
   urlSync = true,
   drive,
   focusable = true,
+  layoutFn,
 }: {
   spec: FlowSpec;
   /** Inputs de fora (comparativo): o canvas usa e alterna, mas não possui. */
@@ -76,6 +77,8 @@ export default function FlowCanvas({
   drive?: CanvasDrive;
   /** false desliga o modo foco — numa máquina, clique em estado não navega. */
   focusable?: boolean;
+  /** Posicionador alternativo (o ciclo passa o polar). Default: a grade. */
+  layoutFn?: (input: LayoutInput) => LayoutResult;
 }) {
   const { measurements, stage } = useMeasurements(spec);
   const sim = useSimulation(spec, shared);
@@ -134,7 +137,7 @@ export default function FlowCanvas({
 
   const graph = useMemo(() => {
     if (!measurements) return null;
-    const result = layout({ spec, ...measurements });
+    const result = (layoutFn ?? layout)({ spec, ...measurements });
 
     const nodes: Node[] = [];
 
@@ -261,7 +264,7 @@ export default function FlowCanvas({
 
     return { nodes, edges };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spec, measurements, sim.active, sim.values, sim.activeIds, sim.history, focusSet, drive]);
+  }, [spec, measurements, sim.active, sim.values, sim.activeIds, sim.history, focusSet, drive, layoutFn]);
 
   // Sai do registro ao desmontar: numa SPA a entrada sobreviveria à rota.
   useEffect(() => {

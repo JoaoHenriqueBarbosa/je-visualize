@@ -19,6 +19,7 @@ import {
   serieVsParalelo,
   osciloscopio,
 } from "../flows/eletronica";
+import { mosfet, niveisLogicos, osciladorAnel } from "../flows/geometrias";
 
 export const eletronica: CollectionSpec = {
   slug: "eletronica",
@@ -39,5 +40,8 @@ export const eletronica: CollectionSpec = {
     portaNor,
     portaXor,
     osciloscopio,
+    osciladorAnel,
+    niveisLogicos,
+    mosfet,
   ],
 };

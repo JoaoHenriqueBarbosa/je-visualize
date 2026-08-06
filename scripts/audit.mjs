@@ -149,11 +149,12 @@ const run = async () => {
     await page.waitForSelector("[data-viz]", { timeout: 10000 });
     await page.waitForFunction(
       () =>
-        [...document.querySelectorAll("[data-viz]")].every((c) =>
-          (c.getAttribute("data-viz-kind") ?? "flow") === "records"
-            ? c.querySelector("[data-rec]")
-            : c.querySelector(".react-flow__node")
-        ),
+        [...document.querySelectorAll("[data-viz]")].every((c) => {
+          const kind = c.getAttribute("data-viz-kind") ?? "flow";
+          if (kind === "flow") return c.querySelector(".react-flow__node");
+          if (kind === "records") return c.querySelector("[data-rec]");
+          return true; // kinds síncronos: já renderizaram junto do container
+        }),
       { timeout: 10000 }
     );
     // fitView anima; esperar assentar antes de medir.
@@ -168,12 +169,13 @@ const run = async () => {
       simStates: 0,
       machineFired: 0,
       recViews: 0,
+      geo: 0,
     };
     // Página sem cena ou cena vazia é falha, não sucesso: um dist velho sem
     // data-viz já produziu um "ok · 0 nós" falso-verde aqui.
     if (!scenes.length) problems.push("nenhuma cena encontrada (data-viz)");
     for (const s of scenes)
-      if (s.kind !== "records" && !s.nodes.length)
+      if (s.kind === "flow" && !s.nodes.length)
         problems.push(`cena "${s.viz}" sem nós`);
     // Numa página de um canvas só, o prefixo de cena é ruído.
     const tagOf = (viz) => (scenes.length > 1 ? `[${viz}] ` : "");
@@ -359,6 +361,34 @@ const run = async () => {
             problems.push(`${tagOf(viz)}vista "${view}": estouro horizontal`);
         }
       }
+
+      // 8. geometrias — cada kind síncrono declara suas contagens no
+      // registro; a auditoria confere que o DOM tem exatamente aquilo.
+      const geoChecks = [
+        ["scale", { bands: "[data-band]", marks: "[data-mark]" }],
+        ["venn", { sets: ".venn-circle", items: "[data-venn-item]" }],
+        ["exploded", { cells: "[data-cell]", callouts: "[data-callout]" }],
+        ["sankey", { nodes: ".sankey-node", links: ".sankey-link" }],
+      ];
+      for (const [key, selectors] of geoChecks) {
+        const meta = await page.evaluate(
+          ([v, k]) => window.__vizRegistry?.[v]?.[k] ?? null,
+          [viz, key]
+        );
+        if (!meta) continue;
+        for (const [field, selector] of Object.entries(selectors)) {
+          const found = await page.evaluate(
+            ([v, sel]) =>
+              document.querySelectorAll(`[data-viz="${v}"] ${sel}`).length,
+            [viz, selector]
+          );
+          if (found !== meta[field])
+            problems.push(
+              `${tagOf(viz)}${key}: ${found} ${field} no DOM, spec tem ${meta[field]}`
+            );
+        }
+        totals.geo += 1;
+      }
     }
 
     await page.screenshot({ path: `${OUT}/${slug}.png`, fullPage: true });
@@ -370,6 +400,7 @@ const run = async () => {
         (totals.simStates ? ` · sim ${totals.simStates} estados` : "") +
         (totals.machineFired ? ` · mq ${totals.machineFired} eventos` : "") +
         (totals.recViews ? ` · reg ${totals.recViews} vistas` : "") +
+        (totals.geo ? ` · geo conferida` : "") +
         (scenes.length > 1 ? ` · ${scenes.length} cenas` : "")
     );
     for (const p of problems) console.log(`        · ${p}`);
