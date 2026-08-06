@@ -1,0 +1,289 @@
+/**
+ * Motor de layout em múltiplas passadas.
+ *
+ * Nada aqui inventa tamanho. As medidas chegam prontas de `Measurer`, que
+ * renderiza os nós e os rótulos com o CSS real e lê do DOM. O motor só
+ * decide onde as coisas cabem, e a regra é sempre a mesma: um vão só existe
+ * se alguém precisa dele, e tem exatamente o tamanho de quem o ocupa.
+ *
+ * Passadas:
+ *   1. ordenação — camadas a partir das arestas de fluxo
+ *   2. grade     — alturas de linha e larguras de coluna, das medidas reais
+ *   3. vãos      — cada vão cresce até caber o maior rótulo que o atravessa
+ *   4. molduras  — vãos nas bordas dos grupos crescem pelo padding do grupo,
+ *                  o que é o que garante que a moldura contenha de fato
+ *   5. posições  — soma acumulada; nós centrados na célula
+ *   6. bordas    — retângulo do grupo pela união dos membros, e lados das
+ *                  arestas derivados da geometria final
+ */
+
+import type { EdgeSpec, FlowSpec, Rect, Side, Size } from "./types";
+import { edgeKey } from "./types";
+
+/** Vão mínimo entre camadas, mesmo sem rótulo. */
+const GAP_Y = 56;
+/** Vão mínimo entre colunas. */
+const GAP_X = 52;
+/** Folga em volta de um rótulo dentro do vão que o hospeda. */
+const LABEL_AIR = 18;
+/** Distância da moldura do grupo ao membro mais próximo. */
+const GROUP_PAD = 30;
+/** Espaço extra no topo da moldura para a legenda não colidir. */
+const GROUP_LEGEND_AIR = 10;
+/** Margem do canvas. */
+const MARGIN = 48;
+
+export interface LayoutInput {
+  spec: FlowSpec;
+  nodeSizes: Record<string, Size>;
+  edgeLabelSizes: Record<string, Size>;
+  groupLegendSizes: Record<string, Size>;
+}
+
+export interface PlacedEdge {
+  spec: EdgeSpec;
+  fromSide: Side;
+  toSide: Side;
+}
+
+export interface LayoutResult {
+  nodes: Record<string, Rect>;
+  groups: Record<string, Rect>;
+  edges: PlacedEdge[];
+  bounds: Rect;
+}
+
+const kindOf = (e: EdgeSpec) => e.kind ?? "flow";
+
+export function layout(input: LayoutInput): LayoutResult {
+  const { spec, nodeSizes, edgeLabelSizes, groupLegendSizes } = input;
+
+  const fallback: Size = { w: 250, h: 120 };
+  const sizeOf = (id: string) => nodeSizes[id] ?? fallback;
+
+  // ---------------------------------------------------------------- 1. ordem
+  // Relaxamento de caminho mais longo sobre as arestas de fluxo. Nós com
+  // `rank` declarado ficam pinados: são fileiras de irmãos que o autor
+  // posicionou de propósito.
+  const pinned = new Set(
+    spec.nodes.filter((n) => n.rank !== undefined).map((n) => n.id)
+  );
+  const rank = new Map<string, number>(
+    spec.nodes.map((n) => [n.id, n.rank ?? 0])
+  );
+  const flowEdges = spec.edges.filter((e) => kindOf(e) === "flow");
+
+  for (let pass = 0; pass <= spec.nodes.length; pass++) {
+    let moved = false;
+    for (const e of flowEdges) {
+      if (pinned.has(e.to)) continue;
+      const from = rank.get(e.from);
+      const to = rank.get(e.to);
+      if (from === undefined || to === undefined) continue;
+      if (to < from + 1) {
+        rank.set(e.to, from + 1);
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+
+  const column = new Map<string, number>(
+    spec.nodes.map((n) => [n.id, n.column ?? 0])
+  );
+
+  // Normaliza para índices começando em zero.
+  const ranks = [...new Set(rank.values())].sort((a, b) => a - b);
+  const cols = [...new Set(column.values())].sort((a, b) => a - b);
+  const rIdx = new Map(ranks.map((r, i) => [r, i]));
+  const cIdx = new Map(cols.map((c, i) => [c, i]));
+
+  const rowOf = (id: string) => rIdx.get(rank.get(id) ?? 0) ?? 0;
+  const colOf = (id: string) => cIdx.get(column.get(id) ?? 0) ?? 0;
+
+  const nRows = ranks.length;
+  const nCols = cols.length;
+
+  // ---------------------------------------------------------------- 2. grade
+  const rowH = new Array(nRows).fill(0);
+  const colW = new Array(nCols).fill(0);
+  for (const n of spec.nodes) {
+    const s = sizeOf(n.id);
+    rowH[rowOf(n.id)] = Math.max(rowH[rowOf(n.id)], s.h);
+    colW[colOf(n.id)] = Math.max(colW[colOf(n.id)], s.w);
+  }
+
+  // ----------------------------------------------------------------- 3. vãos
+  const gapY = new Array(Math.max(0, nRows - 1)).fill(GAP_Y);
+  const gapX = new Array(Math.max(0, nCols - 1)).fill(GAP_X);
+
+  for (const e of spec.edges) {
+    const label = edgeLabelSizes[edgeKey(e)];
+    if (!label) continue;
+
+    const r0 = rowOf(e.from);
+    const r1 = rowOf(e.to);
+    const c0 = colOf(e.from);
+    const c1 = colOf(e.to);
+
+    // Rótulo de aresta vertical mora no vão entre as duas camadas.
+    if (r0 !== r1) {
+      const lo = Math.min(r0, r1);
+      const hi = Math.max(r0, r1);
+      if (hi - lo === 1) {
+        gapY[lo] = Math.max(gapY[lo], label.h + LABEL_AIR * 2);
+      }
+    }
+
+    // Rótulo com componente horizontal mora no corredor entre colunas.
+    if (c0 !== c1) {
+      const lo = Math.min(c0, c1);
+      const hi = Math.max(c0, c1);
+      // Um rótulo que cruza N corredores pode se espalhar por eles.
+      const share = (label.w + LABEL_AIR * 2) / (hi - lo);
+      for (let c = lo; c < hi; c++) gapX[c] = Math.max(gapX[c], share);
+    }
+  }
+
+  // ------------------------------------------------------------- 4. molduras
+  // O padding do grupo é *somado* ao vão da borda, nunca disputado com o
+  // rótulo que já mora lá. É isso que faz a moldura conter de verdade em vez
+  // de passar por cima do vizinho.
+  let padTop = MARGIN;
+  let padBottom = MARGIN;
+  let padLeft = MARGIN;
+  let padRight = MARGIN;
+
+  const groupRows = new Map<string, [number, number]>();
+  const groupCols = new Map<string, [number, number]>();
+
+  for (const g of spec.groups ?? []) {
+    const members = spec.nodes.filter((n) => n.group === g.id);
+    if (!members.length) continue;
+
+    const rs = members.map((m) => rowOf(m.id));
+    const cs = members.map((m) => colOf(m.id));
+    const r0 = Math.min(...rs);
+    const r1 = Math.max(...rs);
+    const c0 = Math.min(...cs);
+    const c1 = Math.max(...cs);
+    groupRows.set(g.id, [r0, r1]);
+    groupCols.set(g.id, [c0, c1]);
+
+    // Um grupo ocupa um bloco retangular da grade. Se um nó de fora cai
+    // dentro desse bloco, a moldura vai passar por cima dele e não há
+    // padding que resolva — o problema é topológico, não métrico.
+    const intruso = spec.nodes.find(
+      (n) =>
+        n.group !== g.id &&
+        rowOf(n.id) >= r0 &&
+        rowOf(n.id) <= r1 &&
+        colOf(n.id) >= c0 &&
+        colOf(n.id) <= c1
+    );
+    if (intruso) {
+      console.warn(
+        `[layout] "${intruso.id}" cai dentro do bloco do grupo "${g.id}" sem ser membro. ` +
+          `Mova-o de coluna/camada ou inclua-o no grupo.`
+      );
+    }
+
+    const legend = groupLegendSizes[g.id] ?? { w: 0, h: 18 };
+    const topNeed = GROUP_PAD + legend.h / 2 + GROUP_LEGEND_AIR;
+
+    if (r0 > 0) gapY[r0 - 1] += topNeed;
+    else padTop += topNeed;
+
+    if (r1 < nRows - 1) gapY[r1] += GROUP_PAD;
+    else padBottom += GROUP_PAD;
+
+    if (c0 > 0) gapX[c0 - 1] += GROUP_PAD;
+    else padLeft += GROUP_PAD;
+
+    if (c1 < nCols - 1) gapX[c1] += GROUP_PAD;
+    else padRight += GROUP_PAD;
+  }
+
+  // ------------------------------------------------------------- 5. posições
+  const rowTop = new Array(nRows).fill(0);
+  let y = padTop;
+  for (let r = 0; r < nRows; r++) {
+    rowTop[r] = y;
+    y += rowH[r] + (r < nRows - 1 ? gapY[r] : 0);
+  }
+  const contentH = y + padBottom;
+
+  const colLeft = new Array(nCols).fill(0);
+  let x = padLeft;
+  for (let c = 0; c < nCols; c++) {
+    colLeft[c] = x;
+    x += colW[c] + (c < nCols - 1 ? gapX[c] : 0);
+  }
+  const contentW = x + padRight;
+
+  const nodes: Record<string, Rect> = {};
+  for (const n of spec.nodes) {
+    const s = sizeOf(n.id);
+    const r = rowOf(n.id);
+    const c = colOf(n.id);
+    nodes[n.id] = {
+      x: Math.round(colLeft[c] + (colW[c] - s.w) / 2),
+      y: Math.round(rowTop[r] + (rowH[r] - s.h) / 2),
+      w: s.w,
+      h: s.h,
+    };
+  }
+
+  // --------------------------------------------------------------- 6. bordas
+  const groups: Record<string, Rect> = {};
+  for (const g of spec.groups ?? []) {
+    const members = spec.nodes.filter((n) => n.group === g.id);
+    if (!members.length) continue;
+    const rects = members.map((m) => nodes[m.id]);
+    const x0 = Math.min(...rects.map((r) => r.x)) - GROUP_PAD;
+    const y0 = Math.min(...rects.map((r) => r.y)) - GROUP_PAD;
+    const x1 = Math.max(...rects.map((r) => r.x + r.w)) + GROUP_PAD;
+    const y1 = Math.max(...rects.map((r) => r.y + r.h)) + GROUP_PAD;
+    groups[g.id] = {
+      x: Math.round(x0),
+      y: Math.round(y0),
+      w: Math.round(x1 - x0),
+      h: Math.round(y1 - y0),
+    };
+  }
+
+  const edges: PlacedEdge[] = spec.edges.map((e) => {
+    const a = nodes[e.from];
+    const b = nodes[e.to];
+    let fromSide: Side;
+    let toSide: Side;
+
+    if (!a || !b) {
+      fromSide = "b";
+      toSide = "t";
+    } else {
+      const dx = b.x + b.w / 2 - (a.x + a.w / 2);
+      const dy = b.y + b.h / 2 - (a.y + a.h / 2);
+      if (Math.abs(dy) >= Math.abs(dx)) {
+        fromSide = dy > 0 ? "b" : "t";
+        toSide = dy > 0 ? "t" : "b";
+      } else {
+        fromSide = dx > 0 ? "r" : "l";
+        toSide = dx > 0 ? "l" : "r";
+      }
+    }
+
+    return {
+      spec: e,
+      fromSide: e.fromSide ?? fromSide,
+      toSide: e.toSide ?? toSide,
+    };
+  });
+
+  return {
+    nodes,
+    groups,
+    edges,
+    bounds: { x: 0, y: 0, w: Math.round(contentW), h: Math.round(contentH) },
+  };
+}
