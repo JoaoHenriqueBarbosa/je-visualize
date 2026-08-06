@@ -1,0 +1,20 @@
+import type { CollectionSpec } from "./types";
+import { antahkarana } from "../flows/antahkarana";
+import { tattvas } from "../flows/tattvas";
+import { guna, pramana, kaivalya } from "../flows/small";
+
+export const samkhya: CollectionSpec = {
+  slug: "samkhya",
+  title: "sāṃkhya",
+  devanagari: "सांख्य",
+  blurb:
+    "O mais antigo dos seis darśanas, e o único que resolve o problema contando. Vinte e cinco princípios, três guṇas, três meios de conhecer.",
+  subtitle:
+    "O mais antigo dos seis darśanas, e o único que resolve o problema contando.",
+  lede:
+    "Vinte e cinco princípios, três guṇas, três meios de conhecer. Nada de criação a partir do nada: o efeito já estava na causa, e o que se chama de manifestar é só o que estava implícito ficando explícito.",
+  footer:
+    "Ordem de leitura sugerida: do problema à cosmologia ao detalhe.",
+  /** Do problema à cosmologia ao detalhe. */
+  flows: [kaivalya, tattvas, guna, antahkarana, pramana],
+};

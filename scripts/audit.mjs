@@ -18,7 +18,7 @@ import { chromium } from "playwright";
 import { mkdirSync } from "node:fs";
 
 const BASE = process.env.BASE ?? "http://localhost:4173";
-const SLUGS = ["kaivalya", "tattvas", "guna", "antahkarana", "pramana"];
+/** Descoberto navegando, não declarado: o audit não desatualiza sozinho. */
 const OUT = "shots";
 
 /** Folga tolerada: bordas encostando não é sobreposição. */
@@ -82,7 +82,23 @@ const run = async () => {
   await page.goto(BASE + "/", { waitUntil: "networkidle" });
   await page.screenshot({ path: `${OUT}/home.png`, fullPage: true });
 
-  for (const slug of SLUGS) {
+  // Rastreia a raiz para achar as coleções, e cada coleção para achar os
+  // diagramas. Assim uma visualização nova entra na auditoria sozinha.
+  const collections = await page.$$eval(".coll-card", (as) =>
+    as.map((a) => a.getAttribute("href").replace(/^\//, ""))
+  );
+
+  const routes = [];
+  for (const c of collections) {
+    await page.goto(`${BASE}/${c}`, { waitUntil: "networkidle" });
+    await page.screenshot({ path: `${OUT}/${c}.png`, fullPage: true });
+    const found = await page.$$eval(".flow-card", (as) =>
+      as.map((a) => a.getAttribute("href").replace(/^\//, ""))
+    );
+    routes.push(...found);
+  }
+
+  for (const slug of routes) {
     warnings.length = 0;
     await page.goto(`${BASE}/${slug}`, { waitUntil: "networkidle" });
     await page.waitForSelector(".react-flow__node", { timeout: 10000 });
@@ -119,11 +135,14 @@ const run = async () => {
         if (overlaps(l, n))
           problems.push(`rótulo "${l.id}" por cima do cartão ${n.id}`);
 
-    await page.screenshot({ path: `${OUT}/${slug}.png`, fullPage: true });
+    await page.screenshot({
+      path: `${OUT}/${slug.replace(/\//g, "-")}.png`,
+      fullPage: true,
+    });
 
     const tag = problems.length ? "FALHA" : "ok   ";
     console.log(
-      `${tag} ${slug.padEnd(13)} ${String(nodes.length).padStart(2)} nós · ` +
+      `${tag} ${slug.padEnd(24)} ${String(nodes.length).padStart(2)} nós · ` +
         `${groups.length} molduras · ${labels.length} rótulos`
     );
     for (const p of problems) console.log(`        · ${p}`);

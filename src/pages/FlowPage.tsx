@@ -1,16 +1,17 @@
 import { Link, useParams } from "react-router-dom";
 import FlowCanvas from "../flow/FlowCanvas";
-import { flowBySlug } from "../flows";
+import { collectionBySlug, flowIn } from "../collections";
 
 export default function FlowPage() {
-  const { slug } = useParams();
-  const spec = slug ? flowBySlug(slug) : undefined;
+  const { collection, slug } = useParams();
+  const owner = collection ? collectionBySlug(collection) : undefined;
+  const spec = owner && slug ? flowIn(owner, slug) : undefined;
 
-  if (!spec) {
+  if (!owner || !spec) {
     return (
       <div className="page missing">
-        <p>Não há flow com esse nome.</p>
-        <Link to="/" className="back">
+        <p>Não há diagrama com esse nome.</p>
+        <Link to={owner ? `/${owner.slug}` : "/"} className="back">
           voltar
         </Link>
       </div>
@@ -20,8 +21,8 @@ export default function FlowPage() {
   return (
     <div className="page flow-page">
       <header className="flow-head">
-        <Link to="/" className="back">
-          ← sāṃkhya
+        <Link to={`/${owner.slug}`} className="back">
+          ← {owner.title}
         </Link>
         <h1>
           <span className="flow-head-deva">{spec.devanagari}</span>

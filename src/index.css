@@ -199,3 +199,116 @@ a {
   gap: 14px;
   color: var(--dim);
 }
+
+/* --------------------------------------------------- home do site (neutra)
+
+   A raiz não pertence a assunto nenhum: sem devanāgarī, sem o contraste
+   dramático das páginas de coleção. Sans-serif, escala curta, cartão que só
+   informa. É o registro que sobrevive ao próximo assunto entrar. */
+
+.site-home {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 96px 32px 72px;
+}
+
+.root-head {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 30px;
+}
+
+.root-head h1 {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+
+.root-sub {
+  margin: 12px 0 0;
+  max-width: 56ch;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--dim);
+}
+
+.coll-list {
+  list-style: none;
+  margin: 34px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.coll-card {
+  display: block;
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  text-decoration: none;
+  background: #161512;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.coll-card:hover {
+  border-color: #4a453d;
+  background: #1b1a16;
+}
+
+.coll-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.coll-card-deva {
+  font-size: 19px;
+  color: var(--ink);
+}
+
+.coll-card-title {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9a9285;
+}
+
+.coll-card-blurb {
+  display: block;
+  margin-top: 10px;
+  max-width: 62ch;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #8d8578;
+}
+
+.coll-card-meta {
+  display: block;
+  margin-top: 12px;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5f594f;
+}
+
+.root-foot {
+  margin-top: 44px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #5f594f;
+}
+
+/* A volta para a raiz, no topo da página de coleção. */
+.site-head .back {
+  display: inline-block;
+  margin-bottom: 18px;
+}
