@@ -226,6 +226,62 @@
   color: var(--dim);
 }
 
+/* --------------------------------------------------------------- máquina */
+
+.machine {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* A faixa de baixo é reservada aos eventos: o padding encolhe a caixa que o
+   fitView enxerga, então o desenho nunca fica embaixo dos botões. */
+.machine .flow-canvas {
+  flex: 1;
+  padding-bottom: var(--sp-9);
+}
+
+/* Os eventos flutuam no pé do canvas: são o painel de controle, não parte
+   do desenho. */
+.machine-events {
+  position: absolute;
+  bottom: var(--sp-5);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.machine-event {
+  padding: var(--sp-2) var(--sp-4);
+  border: var(--bw) solid var(--line);
+  border-left: var(--bw-accent) solid var(--accent, var(--line-hover));
+  border-radius: var(--card-radius, var(--radius-sm));
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow, none);
+  color: var(--ink-soft);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  letter-spacing: var(--ls-tight);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s, opacity 0.15s;
+}
+
+.machine-event:hover:enabled {
+  color: var(--ink);
+  border-color: var(--line-hover);
+  background: var(--card-bg-hover, var(--card-bg));
+}
+
+/* Botão mudo é conteúdo: deste estado, este evento não leva a lugar algum. */
+.machine-event:disabled {
+  opacity: var(--event-off, 0.35);
+  cursor: default;
+}
+
 /* ------------------------------------------------------------- modo foco */
 
 .concept,

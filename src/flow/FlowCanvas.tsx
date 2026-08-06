@@ -53,16 +53,29 @@ const strokeFor = (kind: EdgeKind) => {
   }
 };
 
+/** Estado imposto de fora (o autômato dirige o canvas por aqui). */
+export interface CanvasDrive {
+  /** Cartões acesos além dos `activeWhen` — o estado corrente da máquina. */
+  activeIds?: string[];
+  /** Arestas vivas forçadas, por id `from->to` — a última transição. */
+  liveEdges?: string[];
+}
+
 export default function FlowCanvas({
   spec,
   shared,
   urlSync = true,
+  drive,
+  focusable = true,
 }: {
   spec: FlowSpec;
   /** Inputs de fora (comparativo): o canvas usa e alterna, mas não possui. */
   shared?: SharedSim;
   /** false quando outro dono escreve a URL (o comparativo, pelos dois). */
   urlSync?: boolean;
+  drive?: CanvasDrive;
+  /** false desliga o modo foco — numa máquina, clique em estado não navega. */
+  focusable?: boolean;
 }) {
   const { measurements, stage } = useMeasurements(spec);
   const sim = useSimulation(spec, shared);
@@ -157,7 +170,9 @@ export default function FlowCanvas({
               sim.active && (n.input || n.compute)
                 ? sim.values[n.id]
                 : undefined,
-            active: sim.activeIds.includes(n.id),
+            active:
+              sim.activeIds.includes(n.id) ||
+              !!drive?.activeIds?.includes(n.id),
             dimmed: focusSet ? !focusSet.has(n.id) : false,
             chart: chartFor(n),
           },
@@ -174,8 +189,11 @@ export default function FlowCanvas({
       const stroke = strokeFor(kind);
 
       // Fio vivo: só arestas `flow` carregam valor — aside e illumine são
-      // anotação e presença, não condução.
-      const live = sim.active && kind === "flow" && !!sim.values[e.from];
+      // anotação e presença, não condução. O drive pode acender qualquer
+      // aresta (a transição que a máquina acabou de tomar).
+      const live =
+        (sim.active && kind === "flow" && !!sim.values[e.from]) ||
+        !!drive?.liveEdges?.includes(`${e.from}->${e.to}`);
       const dimmed =
         focusSet && !(focusSet.has(e.from) && focusSet.has(e.to));
 
@@ -216,9 +234,14 @@ export default function FlowCanvas({
     // registro é POR CANVAS (chave = slug, casada com data-viz no DOM):
     // o comparativo põe dois canvases na mesma página e globals disputariam.
     const w = window as unknown as {
-      __vizRegistry?: Record<string, unknown>;
+      __vizRegistry?: Record<string, Record<string, unknown>>;
     };
-    (w.__vizRegistry ??= {})[spec.slug] = {
+    const reg = (w.__vizRegistry ??= {});
+    // Merge, nunca substituição: quem embrulha este canvas (a máquina) põe
+    // as próprias chaves na mesma entrada, e pode não re-renderizar quando
+    // este memo roda — substituir aqui já engoliu o bloco `machine` uma vez.
+    reg[spec.slug] = {
+      ...(reg[spec.slug] ?? {}),
       membership: Object.fromEntries(
         (spec.groups ?? []).map((g) => [
           g.id,
@@ -238,7 +261,7 @@ export default function FlowCanvas({
 
     return { nodes, edges };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [spec, measurements, sim.active, sim.values, sim.activeIds, sim.history, focusSet]);
+  }, [spec, measurements, sim.active, sim.values, sim.activeIds, sim.history, focusSet, drive]);
 
   // Sai do registro ao desmontar: numa SPA a entrada sobreviveria à rota.
   useEffect(() => {
@@ -270,7 +293,7 @@ export default function FlowCanvas({
             if (!n) return;
             if (sim.active && n.input) {
               sim.toggle(n.id);
-            } else {
+            } else if (focusable) {
               focusTouched.current = true;
               setFocus((f) => (f === n.id ? null : n.id));
             }

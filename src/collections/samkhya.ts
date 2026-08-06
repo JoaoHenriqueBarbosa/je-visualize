@@ -7,6 +7,7 @@ import type { CollectionSpec } from "./types";
 import { antahkarana } from "../flows/antahkarana";
 import { tattvas } from "../flows/tattvas";
 import { guna, pramana, kaivalya } from "../flows/small";
+import { tattvabhyasa } from "../flows/viveka";
 
 export const samkhya: CollectionSpec = {
   slug: "samkhya",
@@ -20,7 +21,7 @@ export const samkhya: CollectionSpec = {
     "Vinte e cinco princípios, três guṇas, três meios de conhecer. Nada de criação a partir do nada: o efeito já estava na causa, e o que se chama de manifestar é só o que estava implícito ficando explícito.",
   theme: "theme-samkhya",
   footer:
-    "Ordem de leitura sugerida: do problema à cosmologia ao detalhe.",
-  /** Do problema à cosmologia ao detalhe. */
-  vizes: [kaivalya, tattvas, guna, antahkarana, pramana],
+    "Ordem de leitura sugerida: do problema à cosmologia ao detalhe — e a dinâmica por último.",
+  /** Do problema à cosmologia ao detalhe; a dinâmica fecha. */
+  vizes: [kaivalya, tattvas, guna, antahkarana, pramana, tattvabhyasa],
 };

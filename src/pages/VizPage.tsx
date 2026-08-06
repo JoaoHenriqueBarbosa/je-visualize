@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import FlowCanvas from "../flow/FlowCanvas";
 import CompareCanvas from "../viz/CompareCanvas";
+import MachineCanvas from "../viz/MachineCanvas";
 import { collectionBySlug, vizIn } from "../collections";
 import type { VizSpec } from "../viz/types";
 
@@ -44,6 +45,8 @@ function VizBody({ spec }: { spec: VizSpec }) {
   switch (spec.kind) {
     case "compare":
       return <CompareCanvas spec={spec} />;
+    case "machine":
+      return <MachineCanvas spec={spec} />;
     default:
       return <FlowCanvas spec={spec} />;
   }

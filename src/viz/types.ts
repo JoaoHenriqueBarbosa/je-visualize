@@ -12,7 +12,67 @@
  * despachar o corpo. Auditoria e rotas não sabem que tipos existem.
  */
 
-import type { FlowSpec } from "../flow/types";
+import type { FlowSpec, Side } from "../flow/types";
+
+/**
+ * Um estado do autômato. Deliberadamente um subconjunto do NodeSpec: sem
+ * input/compute (quem muda estado é o evento, não o clique no cartão) e com
+ * `rank`/`column` OBRIGATÓRIOS na prática — transições não avançam camada
+ * (ciclo é a norma numa máquina), então não há aresta de fluxo para derivar
+ * topologia e o autor precisa declará-la.
+ */
+export interface MachineStateSpec {
+  id: string;
+  script?: string;
+  label: string;
+  gloss?: string;
+  detail?: string;
+  accent?: string;
+  variant?: "full" | "compact";
+  /** Estados são redondos por default — o tema decide o que isso significa. */
+  round?: boolean;
+  column?: number;
+  rank?: number;
+  /** O estado em que a máquina acorda. Sem nenhum, o primeiro da lista. */
+  initial?: boolean;
+}
+
+export interface MachineEventSpec {
+  id: string;
+  /** Rótulo do botão. Default: o próprio id. */
+  label?: string;
+  accent?: string;
+}
+
+export interface MachineTransitionSpec {
+  from: string;
+  to: string;
+  /** O evento que dispara. Transição é sempre resposta, nunca espontânea. */
+  event: string;
+  /** Rótulo da aresta. Default: o rótulo do evento. */
+  label?: string;
+  accent?: string;
+  fromSide?: Side;
+  toSide?: Side;
+}
+
+/**
+ * Máquina de estados: estados como cartões, transições como arestas,
+ * eventos como botões. O estado corrente fica aceso; disparar um evento
+ * segue a transição aplicável (botão desabilitado quando não há nenhuma).
+ */
+export interface MachineSpec {
+  kind: "machine";
+  slug: string;
+  title: string;
+  script?: string;
+  subtitle: string;
+  blurb: string;
+  footer?: string[];
+  states: MachineStateSpec[];
+  events: MachineEventSpec[];
+  transitions: MachineTransitionSpec[];
+}
 
 /**
  * Dois flows lado a lado com os inputs COMPARTILHADOS por id: alternar A
@@ -32,7 +92,7 @@ export interface CompareSpec {
   sides: FlowSpec[];
 }
 
-export type VizSpec = FlowSpec | CompareSpec;
+export type VizSpec = FlowSpec | CompareSpec | MachineSpec;
 
 export type VizKind = NonNullable<VizSpec["kind"]>;
 
@@ -52,6 +112,10 @@ export const vizMeta = (v: VizSpec): string => {
     case "compare": {
       const c = v as CompareSpec;
       return c.sides.map((s) => s.title).join(" ‖ ");
+    }
+    case "machine": {
+      const m = v as MachineSpec;
+      return `${m.states.length} estados · ${m.transitions.length} transições`;
     }
   }
 };

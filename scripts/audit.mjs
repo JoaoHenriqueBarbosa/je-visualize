@@ -149,7 +149,7 @@ const run = async () => {
 
     const scenes = await page.evaluate(readScenes);
     const problems = [];
-    let totals = { nodes: 0, groups: 0, labels: 0, simStates: 0 };
+    let totals = { nodes: 0, groups: 0, labels: 0, simStates: 0, machineFired: 0 };
     // Página sem cena ou cena vazia é falha, não sucesso: um dist velho sem
     // data-viz já produziu um "ok · 0 nós" falso-verde aqui.
     if (!scenes.length) problems.push("nenhuma cena encontrada (data-viz)");
@@ -261,6 +261,53 @@ const run = async () => {
             );
         }
       }
+
+      // 6. máquina — dispara cada evento de verdade e cobra a tabela de
+      // transições: evento aplicável leva ao estado esperado e o cartão
+      // acende; evento sem transição precisa estar mudo (desabilitado).
+      const machineMeta = await page.evaluate(
+        (v) => window.__vizRegistry?.[v]?.machine ?? null,
+        viz
+      );
+      if (machineMeta) {
+        let expected = machineMeta.current;
+        for (let round = 0; round < 2; round++) {
+          for (const ev of machineMeta.events) {
+            const btn = `[data-viz-events="${viz}"] .machine-event[data-event="${ev}"]`;
+            const t = machineMeta.transitions.find(
+              (t) => t.from === expected && t.event === ev
+            );
+            if (!t) {
+              const disabled = await page.$eval(btn, (b) => b.disabled);
+              if (!disabled)
+                problems.push(
+                  `${tagOf(viz)}máquina: "${ev}" habilitado sem transição de ${expected}`
+                );
+              continue;
+            }
+            await page.click(btn);
+            await page.waitForTimeout(50);
+            expected = t.to;
+            totals.machineFired += 1;
+
+            const cur = await page.evaluate(
+              (v) => window.__vizRegistry?.[v]?.machine?.current,
+              viz
+            );
+            if (cur !== expected)
+              problems.push(
+                `${tagOf(viz)}máquina: "${ev}" levou a ${cur}, esperado ${expected}`
+              );
+            const lit = await page.$(
+              `[data-viz="${viz}"] .react-flow__node[data-id="${expected}"] .concept.is-active`
+            );
+            if (!lit)
+              problems.push(
+                `${tagOf(viz)}máquina: estado corrente ${expected} não está aceso`
+              );
+          }
+        }
+      }
     }
 
     await page.screenshot({ path: `${OUT}/${slug}.png`, fullPage: true });
@@ -270,6 +317,7 @@ const run = async () => {
       `${tag} ${slug.padEnd(24)} ${String(totals.nodes).padStart(2)} nós · ` +
         `${totals.groups} molduras · ${totals.labels} rótulos` +
         (totals.simStates ? ` · sim ${totals.simStates} estados` : "") +
+        (totals.machineFired ? ` · mq ${totals.machineFired} eventos` : "") +
         (scenes.length > 1 ? ` · ${scenes.length} cenas` : "")
     );
     for (const p of problems) console.log(`        · ${p}`);
