@@ -1,24 +1,25 @@
 /**
- * Página de um diagrama. Resolve coleção e flow pelos dois params da rota;
- * o FlowCanvas faz o resto (medir, posicionar, desenhar).
+ * Página de uma visualização. Resolve coleção e viz pelos dois params da
+ * rota e despacha o corpo pelo `kind` do spec — o chrome (botões flutuantes,
+ * painel de informações) é o mesmo para todo tipo, porque voltar e ler sobre
+ * o que se está vendo não são necessidades de flow: são de página.
  *
- * A resolução é em dois passos de propósito — primeiro a coleção, depois o
- * flow DENTRO dela — para que slugs de flow não precisem ser globalmente
- * únicos: /samkhya/guna e uma futura /musica/guna podem coexistir.
+ * A resolução é em dois passos de propósito — primeiro a coleção, depois a
+ * viz DENTRO dela — para que slugs não precisem ser globalmente únicos:
+ * /samkhya/guna e uma futura /musica/guna podem coexistir.
  *
- * A página é só o canvas. Título, subtítulo e rodapé moram num painel que o
- * leitor abre quando quer: num diagrama, altura de tela é o recurso escasso
- * e um cabeçalho fixo cobra esse preço em toda visita, inclusive nas em que
- * o texto já foi lido. Sobram dois botões flutuantes — voltar e informações.
- *
- * O painel fica montado mesmo fechado (`inert` + oculto no CSS) para poder
- * animar e para o documento nunca ficar sem o seu h1.
+ * A página é só o desenho. Título, subtítulo e rodapé moram num painel que o
+ * leitor abre quando quer: altura de tela é o recurso escasso e um cabeçalho
+ * fixo cobra esse preço em toda visita, inclusive nas em que o texto já foi
+ * lido. O painel fica montado mesmo fechado (`inert` + oculto no CSS) para
+ * poder animar e para o documento nunca ficar sem o seu h1.
  */
 
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import FlowCanvas from "../flow/FlowCanvas";
-import { collectionBySlug, flowIn } from "../collections";
+import { collectionBySlug, vizIn } from "../collections";
+import { vizKind, type VizSpec } from "../viz/types";
 
 /** Ícones em traço, herdando a cor do botão — nada de cor em JS. */
 const IconBack = () => (
@@ -35,10 +36,18 @@ const IconInfo = () => (
   </svg>
 );
 
-export default function FlowPage() {
+/** O corpo, por tipo. Cada kind novo entra aqui com seu renderizador. */
+function VizBody({ spec }: { spec: VizSpec }) {
+  switch (vizKind(spec)) {
+    case "flow":
+      return <FlowCanvas spec={spec} />;
+  }
+}
+
+export default function VizPage() {
   const { collection, slug } = useParams();
   const owner = collection ? collectionBySlug(collection) : undefined;
-  const spec = owner && slug ? flowIn(owner, slug) : undefined;
+  const spec = owner && slug ? vizIn(owner, slug) : undefined;
 
   const [info, setInfo] = useState(false);
 
@@ -105,7 +114,7 @@ export default function FlowPage() {
         )}
       </aside>
 
-      <FlowCanvas spec={spec} />
+      <VizBody spec={spec} />
     </div>
   );
 }

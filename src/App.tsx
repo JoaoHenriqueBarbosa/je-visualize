@@ -1,9 +1,9 @@
 /**
  * As três rotas do site, espelhando a hierarquia dos dados:
  *
- *   /                       coleções     (collections/index.ts)
- *   /:collection            diagramas    (CollectionSpec.flows)
- *   /:collection/:slug      um diagrama  (FlowSpec)
+ *   /                       coleções           (collections/index.ts)
+ *   /:collection            visualizações      (CollectionSpec.vizes)
+ *   /:collection/:slug      uma visualização   (VizSpec, despachada por kind)
  *
  * Não há rota fora dessa hierarquia e não deve haver: a auditoria descobre
  * o site rastreando esses dois níveis de card, e o roteamento SPA da Vercel
@@ -14,14 +14,14 @@
 import { Route, Routes } from "react-router-dom";
 import SiteHome from "./pages/SiteHome";
 import CollectionPage from "./pages/CollectionPage";
-import FlowPage from "./pages/FlowPage";
+import VizPage from "./pages/VizPage";
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<SiteHome />} />
       <Route path="/:collection" element={<CollectionPage />} />
-      <Route path="/:collection/:slug" element={<FlowPage />} />
+      <Route path="/:collection/:slug" element={<VizPage />} />
     </Routes>
   );
 }

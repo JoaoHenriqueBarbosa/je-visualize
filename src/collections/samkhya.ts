@@ -22,5 +22,5 @@ export const samkhya: CollectionSpec = {
   footer:
     "Ordem de leitura sugerida: do problema à cosmologia ao detalhe.",
   /** Do problema à cosmologia ao detalhe. */
-  flows: [kaivalya, tattvas, guna, antahkarana, pramana],
+  vizes: [kaivalya, tattvas, guna, antahkarana, pramana],
 };

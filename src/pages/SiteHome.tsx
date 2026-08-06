@@ -35,8 +35,8 @@ export default function SiteHome() {
               </span>
               <span className="coll-card-blurb">{c.blurb}</span>
               <span className="coll-card-meta">
-                {c.flows.length}{" "}
-                {c.flows.length === 1 ? "diagrama" : "diagramas"}
+                {c.vizes.length}{" "}
+                {c.vizes.length === 1 ? "diagrama" : "diagramas"}
               </span>
             </Link>
           </li>

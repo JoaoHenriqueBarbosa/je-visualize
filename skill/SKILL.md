@@ -37,7 +37,9 @@ filtrar o token da saída de comandos git (`| sed "s/${GITHUB_TOKEN}/***/g"`).
 /samkhya                página de uma coleção, lista seus diagramas
 /samkhya/antahkarana    um diagrama (flow)
 
-src/collections/        CollectionSpec: slug, title, blurb, theme, flows[]
+src/collections/        CollectionSpec: slug, title, blurb, theme, vizes[]
+src/viz/                VizSpec: união discriminada por `kind` (default "flow");
+                        a VizPage despacha o corpo pelo kind
 src/flows/              FlowSpec: nodes, edges, groups — declarativo
 src/flow/               motor: types.ts, layout.ts, Measurer, FlowCanvas
 src/styles/globals.css  SÓ tamanhos (espaço, corpo, raio, largura de cartão)
@@ -120,12 +122,11 @@ Regras aprendidas quebrando:
 2. `src/collections/<assunto>.ts` — CollectionSpec com
    `theme: "theme-<assunto>"`. `script` da coleção é opcional.
 3. Registrar em `src/collections/index.ts` (import + array).
-4. `src/styles/themes/<assunto>.css` — definir TODAS as variáveis (copiar um
-   tema existente como checklist: bg, ink, ink-soft, body, dim, faint, line,
-   line-hover, card-bg, card-bg-hover, card-shadow, card-radius, rule,
-   rule-strong, frame-border, frame-style, frame-bg, legend, legend-dim,
-   edge-ink, font-body, font-display, font-script, gloss-style).
-   Variável faltando = cor herdada de fora ou transparente.
+4. `src/styles/themes/<assunto>.css` — definir TODAS as variáveis que a
+   estrutura consome. O checklist é executável: `bun run lint` roda o
+   theme-lint, que cobra cada variável faltante por tema (copiar um tema
+   existente como ponto de partida). Variável faltando = cor herdada de
+   fora ou transparente — e agora, lint vermelho.
 5. Registrar o tema em `src/index.css` (@import).
 6. Rotas, home e auditoria descobrem sozinhas — nada de cadastro além do
    index de coleções.
@@ -137,6 +138,7 @@ Estender uma coleção existente: só passos 1 e o array `flows` dela.
 ```bash
 export PATH="$HOME/.bun/bin:$PATH"
 bunx tsc --noEmit
+bun run lint     # oxlint + theme-lint: cobra cada variável de tema faltante
 bun run build
 pkill -f "vite preview"; sleep 1; (nohup bun run preview >/tmp/p.log 2>&1 &); \
   sleep 5; bun run audit <visualização>

@@ -17,5 +17,5 @@ export const collections: CollectionSpec[] = [samkhya, eletronica];
 export const collectionBySlug = (slug: string) =>
   collections.find((c) => c.slug === slug);
 
-export const flowIn = (collection: CollectionSpec, slug: string) =>
-  collection.flows.find((f) => f.slug === slug);
+export const vizIn = (collection: CollectionSpec, slug: string) =>
+  collection.vizes.find((v) => v.slug === slug);

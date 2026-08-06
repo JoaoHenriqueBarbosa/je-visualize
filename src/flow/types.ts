@@ -68,6 +68,12 @@ export interface EdgeSpec {
 }
 
 export interface FlowSpec {
+  /**
+   * Discriminante da união VizSpec (src/viz/types.ts). Opcional e default
+   * porque o flow é o tipo fundador: todo spec sem `kind` é um flow, e os
+   * specs existentes não precisaram mudar quando a união nasceu.
+   */
+  kind?: "flow";
   slug: string;
   title: string;
   script?: string;

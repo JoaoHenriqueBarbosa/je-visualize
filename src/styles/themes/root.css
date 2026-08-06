@@ -22,6 +22,8 @@
   --card-bg: #121214;
   --card-bg-hover: #17171a;
 
+  --rule: #212125;
+
   /* Sem itálico: a raiz não comenta, ela lista. */
   --gloss-style: normal;
 }

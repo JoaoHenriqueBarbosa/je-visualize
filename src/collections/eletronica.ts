@@ -17,5 +17,5 @@ export const eletronica: CollectionSpec = {
     "Uma porta não decide nada: ela é um arranjo de chaves onde a corrente ou tem por onde passar ou não tem. Série e paralelo são as duas formas mínimas, e dão as duas portas fundamentais.",
   footer: "Sem grafia nativa: nem todo assunto tem uma, e o tema aguenta.",
   theme: "theme-eletronica",
-  flows: [portaAnd, portaOr],
+  vizes: [portaAnd, portaOr],
 };

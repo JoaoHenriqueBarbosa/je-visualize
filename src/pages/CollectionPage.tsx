@@ -10,6 +10,7 @@
 
 import { Link, useParams } from "react-router-dom";
 import { collectionBySlug } from "../collections";
+import { vizMeta } from "../viz/types";
 
 export default function CollectionPage() {
   const { collection } = useParams();
@@ -41,15 +42,13 @@ export default function CollectionPage() {
       </header>
 
       <ul className="flow-list">
-        {spec.flows.map((f) => (
+        {spec.vizes.map((f) => (
           <li key={f.slug}>
             <Link to={`/${spec.slug}/${f.slug}`} className="flow-card">
               <span className="flow-card-script">{f.script}</span>
               <span className="flow-card-title">{f.title}</span>
               <span className="flow-card-blurb">{f.blurb}</span>
-              <span className="flow-card-meta">
-                {f.nodes.length} princípios · {f.edges.length} relações
-              </span>
+              <span className="flow-card-meta">{vizMeta(f)}</span>
             </Link>
           </li>
         ))}
