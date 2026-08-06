@@ -18,7 +18,8 @@
 
 import type { FlowSpec, SimValue } from "../flow/types";
 
-const V = {
+/** A paleta da economia — compartilhada pelas três visualizações do valor. */
+export const V = {
   uso: "#4a7c59",
   valor: "#2d5e8a",
   dinheiro: "#a8842c",
@@ -35,7 +36,7 @@ const razao = (v: Record<string, SimValue>) =>
 
 export const teoriaDoValor: FlowSpec = {
   slug: "teoria-do-valor",
-  title: "a teoria do valor",
+  title: "o valor em Marx",
   script: "D–M–D′",
   subtitle:
     "Da mercadoria à taxa de mais-valia, no percurso d'O Capital — e conduzindo: as jornadas são clicáveis e a conta se refaz.",

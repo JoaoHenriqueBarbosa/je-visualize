@@ -1,27 +1,27 @@
 /**
- * A terceira coleção — e a primeira de tema claro: o livro-razão. A regra
- * de distribuição pedia casa nova para assunto novo, e economia política
- * não é sāṃkhya nem circuito.
+ * A terceira coleção — e a primeira de tema claro: o livro-razão.
  *
- * Abre pela teoria do valor porque é onde O Capital abre: a mercadoria como
- * célula. As próximas visualizações do assunto (circuito do capital como
- * ciclo, composição orgânica como sankey, escolas como registros...) entram
- * no array quando forem pedidas.
+ * Não é uma coleção sobre um autor: é sobre a pergunta. As visualizações
+ * discordam entre si de propósito — a leitura tradicional do valor como
+ * substância produzida, a Nova Leitura (Heinrich, na esteira de Backhaus e
+ * Reichelt) do valor como forma constituída na validação monetária, e o
+ * confronto direto entre as duas com o mesmo clique de venda.
  */
 
 import type { CollectionSpec } from "./types";
 import { teoriaDoValor } from "../flows/valor";
+import { valorHeinrich, produzidoVsConstituido } from "../flows/heinrich";
 
 export const economia: CollectionSpec = {
   slug: "economia",
   title: "economia",
   blurb:
-    "A crítica da economia política em diagramas: o valor como relação social, contado em horas.",
-  subtitle: "a crítica da economia política, começando pela célula",
+    "A crítica da economia política em diagramas: o que a troca iguala, de onde vem o valor, e o que o dinheiro tem com isso.",
+  subtitle: "a pergunta de dois séculos: o que a troca iguala",
   lede:
-    "Marx abre O Capital pela mercadoria porque nela já está, dobrado, tudo o mais — o valor, o dinheiro, o capital, o acréscimo. A primeira visualização segue esse desdobramento até a taxa de mais-valia, e conduz de verdade: as jornadas são clicáveis.",
+    "O valor é a categoria mais disputada da economia política, e esta coleção não escolhe um lado: percorre as respostas. O valor produzido pelo trabalho e contado em horas; o valor constituído na validação social, com o dinheiro como forma e não véu; e o confronto entre os dois, respondendo ao mesmo clique. Todas conduzem de verdade.",
   footer:
-    "Toda grandeza aqui é tempo de trabalho: o dinheiro só traduz.",
+    "Se o dinheiro traduz o valor ou o constitui é exatamente a disputa — as visualizações discordam entre si de propósito.",
   theme: "theme-economia",
-  vizes: [teoriaDoValor],
+  vizes: [teoriaDoValor, valorHeinrich, produzidoVsConstituido],
 };
