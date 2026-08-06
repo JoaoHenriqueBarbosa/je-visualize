@@ -235,17 +235,6 @@ body {
   color: var(--faint);
 }
 
-/* ----------------------------------------------------- página do diagrama */
-
-.flow-page {
-  height: 100%;
-}
-
-.flow-head {
-  padding: var(--sp-5) var(--sp-7) var(--sp-4);
-  border-bottom: var(--bw) solid var(--line);
-}
-
 .back {
   font-size: var(--fs-sm);
   letter-spacing: var(--ls-wide);
@@ -258,47 +247,132 @@ body {
   color: var(--dim);
 }
 
-.flow-head h1 {
-  margin: var(--sp-3) 0 0;
+/* ----------------------------------------------------- página do diagrama */
+
+/* Aqui o desenho é a página: nada de cabeçalho nem rodapé roubando altura.
+   Os dois botões e o painel flutuam sobre o canvas, e por isso a página é o
+   contexto de posicionamento deles. */
+.flow-page {
+  --tool: 34px;
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.flow-tools {
+  position: absolute;
+  top: var(--sp-4);
+  left: var(--sp-4);
+  z-index: 6;
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.flow-tool {
+  width: var(--tool);
+  height: var(--tool);
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: var(--bw) solid var(--line);
+  border-radius: var(--card-radius, var(--radius-sm));
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow, none);
+  color: var(--dim);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.flow-tool:hover,
+.flow-tool.on {
+  color: var(--ink);
+  border-color: var(--line-hover);
+  background: var(--card-bg-hover, var(--card-bg));
+}
+
+.flow-tool svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+/* Fechado ele continua no DOM — é onde mora o h1 da página, e ficar montado
+   é o que permite a transição. `inert` no JSX tira do foco e da leitura. */
+.flow-info {
+  position: absolute;
+  top: calc(var(--sp-4) + var(--tool) + var(--sp-2));
+  left: var(--sp-4);
+  z-index: 6;
+  width: min(var(--measure-narrow), calc(100vw - var(--sp-6) * 2));
+  max-height: calc(100% - var(--sp-7) - var(--tool));
+  overflow-y: auto;
+  padding: var(--sp-5);
+  border: var(--bw) solid var(--line);
+  border-radius: var(--card-radius, var(--radius-sm));
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow, none);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.16s, transform 0.16s, visibility 0.16s;
+}
+
+.flow-info.open {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.flow-info h1 {
+  margin: 0;
   display: flex;
   align-items: baseline;
-  gap: var(--sp-4);
+  gap: var(--sp-3);
   font-weight: 500;
 }
 
-.flow-head-script {
-  font-size: var(--fs-3xl);
+.flow-info-script {
+  font-size: var(--fs-2xl);
   letter-spacing: var(--ls-tight);
   font-family: var(--font-script, var(--font-body));
 }
 
-.flow-head-name {
-  font-size: var(--fs-lg);
+.flow-info-name {
+  font-size: var(--fs-md);
   letter-spacing: var(--ls-wide);
   color: var(--dim);
   font-family: var(--font-display, var(--font-body));
 }
 
-.flow-head p {
-  margin: var(--sp-2) 0 0;
-  max-width: var(--measure);
-  font-size: var(--fs-md);
+.flow-info-sub {
+  margin: var(--sp-3) 0 0;
+  font-size: var(--fs-base);
   line-height: var(--lh-normal);
   font-style: var(--gloss-style, italic);
   color: var(--dim);
 }
 
-.flow-foot {
-  border-top: var(--bw) solid var(--line);
-  padding: var(--sp-4) var(--sp-7);
+.flow-info-blurb {
+  margin: var(--sp-3) 0 0;
+  font-size: var(--fs-base);
+  line-height: var(--lh-loose);
+  color: var(--body);
+}
+
+.flow-info-foot {
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: var(--bw) solid var(--rule);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
   font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
   color: var(--dim);
 }
 
-.flow-foot .muted {
+.flow-info-foot .muted {
   opacity: 0.62;
   font-style: var(--gloss-style, italic);
 }
