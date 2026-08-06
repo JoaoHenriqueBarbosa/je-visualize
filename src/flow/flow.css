@@ -285,7 +285,12 @@
 /* ---------------------------------------------------------------- passeio */
 
 /* O stepper do walkthrough: flutua no pé do canvas, como os eventos da
-   máquina — narração é controle, não desenho. */
+   máquina — narração é controle, não desenho. A faixa dele é reservada
+   como a dos eventos: o fitView nunca põe desenho embaixo da barra. */
+.flow-canvas:has(> .walk) {
+  padding-bottom: var(--sp-9);
+}
+
 .walk {
   position: absolute;
   bottom: var(--sp-5);

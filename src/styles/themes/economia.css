@@ -1,0 +1,59 @@
+/**
+ * Tema economia — o livro-razão.
+ *
+ * O primeiro tema claro do site, e de propósito: Marx escreveu na sala de
+ * leitura do Museu Britânico, sobre relatórios de inspetores fabris e
+ * livros contábeis vitorianos. A referência é essa: papel creme, serifa de
+ * texto corrido, filetes de escrituração, e o vermelho de rubrica reservado
+ * ao que é dele — legendas e mais-valia.
+ *
+ * Claro é o teste que faltava às variáveis: brilho de "aceso" vira halo
+ * suave sobre papel, fio recuado escurece em vez de sumir, e o esmaecido
+ * precisa ser mais raso (0.35) porque sobre fundo claro a opacidade come a
+ * legibilidade mais depressa.
+ */
+
+.theme-economia {
+  --font-body: "Iowan Old Style", "Palatino", "Palatino Linotype", Georgia,
+    serif;
+  --font-display: var(--font-body);
+  /* As fórmulas (D–M–D′, m∕v) são texto do assunto: mesma serifa. */
+  --font-script: var(--font-body);
+
+  --bg: #f2ecdc;
+  --ink: #2b2118;
+  --ink-soft: #52432f;
+  --body: #5c4d3a;
+  --dim: #78664c;
+  --faint: #a18c69;
+  --line: #d8cbab;
+  --line-hover: #b09a72;
+
+  --card-bg: #faf6ea;
+  --card-bg-hover: #f5eeda;
+  --card-shadow: 0 1px 3px rgba(90, 70, 40, 0.16);
+  --card-radius: 2px;
+
+  --rule: #e3d8bc;
+  --rule-strong: #c8b78f;
+
+  --frame-border: #b3a078;
+  --frame-style: solid;
+  --frame-bg: rgba(140, 110, 60, 0.05);
+  /* O vermelho de rubrica: era assim que se marcava o que importava. */
+  --legend: #7b1e26;
+  --legend-dim: #a18c69;
+
+  --edge-ink: #6b5b41;
+  --dots: #ded2b3;
+
+  --gloss-style: italic;
+
+  /* Simulação sobre papel: halo curto, fio recuado ainda legível, ativo
+     com fundo de marca-texto envelhecido. */
+  --on-glow: 14px;
+  --on-glow-spread: -6px;
+  --wire-off: 0.4;
+  --card-bg-active: #f3e8c6;
+  --dim-opacity: 0.35;
+}

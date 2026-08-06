@@ -10,9 +10,10 @@
 import type { CollectionSpec } from "./types";
 import { samkhya } from "./samkhya";
 import { eletronica } from "./eletronica";
+import { economia } from "./economia";
 
 /** Tudo que já foi pedido para ser visualizado, em ordem de chegada. */
-export const collections: CollectionSpec[] = [samkhya, eletronica];
+export const collections: CollectionSpec[] = [samkhya, eletronica, economia];
 
 export const collectionBySlug = (slug: string) =>
   collections.find((c) => c.slug === slug);

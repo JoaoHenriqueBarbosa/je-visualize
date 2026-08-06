@@ -249,11 +249,15 @@ export default function FlowCanvas({
       const accent = e.accent ?? DEFAULT_ACCENT;
       const stroke = strokeFor(kind);
 
-      // Fio vivo: só arestas `flow` carregam valor — aside e illumine são
-      // anotação e presença, não condução. O drive pode acender qualquer
-      // aresta (a transição que a máquina acabou de tomar).
+      // Fio vivo: só arestas `flow` cuja ORIGEM tem valor são fio — num
+      // flow misto (parte conceitual, parte simulada, caso da teoria do
+      // valor) a aresta sem valor não é "desligada", é neutra: nem brilha
+      // nem recua. Aside e illumine seguem fora: anotação e presença. O
+      // drive pode acender qualquer aresta (a transição recém-tomada).
+      const carries =
+        sim.active && kind === "flow" && e.from in sim.values;
       const live =
-        (sim.active && kind === "flow" && !!sim.values[e.from]) ||
+        (carries && !!sim.values[e.from]) ||
         !!drive?.liveEdges?.includes(`${e.from}->${e.to}`);
       const dimmed =
         dimSet && !(dimSet.has(e.from) && dimSet.has(e.to));
@@ -269,7 +273,7 @@ export default function FlowCanvas({
         label: e.label,
         animated: kind === "feedback",
         className: [
-          kind === "flow" ? "wire" : "",
+          carries ? "wire" : "",
           live ? "edge-live" : "",
           dimmed ? "dimmed" : "",
         ]
