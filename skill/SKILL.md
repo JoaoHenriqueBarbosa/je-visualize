@@ -147,6 +147,36 @@ Regras aprendidas quebrando:
   sem cor em volta da coluna.
 - Home raiz = `theme-root`, neutra, é índice e não capa. Não tematizar.
 
+## Os outros kinds — quando o assunto não é um flow
+
+`VizSpec` é união discriminada; `kind` ausente = flow. Cada kind tem
+renderizador em `src/viz/` e a VizPage despacha sozinha. Escolher pelo
+assunto:
+
+- `compare` — dois flows, inputs compartilhados por id (série ‖ paralelo).
+- `machine` — estados + eventos como botões + transições. Estados exigem
+  rank/column declarados (transições não ordenam — ciclo é a norma). Botão
+  sem transição aplicável fica mudo, e isso é conteúdo (tattvābhyāsa).
+- `records` — fields + rows + views (table/kanban/gantt): projeções do
+  mesmo dado, nada digitado duas vezes (darsanas).
+- `cycle` — anel + centro opcional, layout polar (oscilador-anel).
+- `scale` — eixo contínuo com faixas e marcas (niveis-logicos).
+- `sankey` — fluxo com quantidade, Recharts com fitas preenchidas
+  (contagem).
+- `venn` — conjuntos aninhados, SVG concêntrico (pramana-escolas).
+- `exploded` — figura em grade CSS + legendas ancoradas por cor (mosfet).
+
+Ainda no flow: `steps` dá o passeio narrado (tattvas), e os EdgeKinds
+`supports`/`attacks` dão mapa argumentativo (prova-purusha) — supports
+ordena como flow, attacks é lateral tracejada.
+
+Estado de leitura na URL, um padrão por kind: ?sim= ?foco= ?estado=
+?vista= ?passo=.
+
+Regra de distribuição de conteúdo: o que demonstra máquina nova se
+reparte entre as coleções — não concentrar tudo na eletrônica; se nenhum
+assunto encaixar, criar coleção nova.
+
 ## Criar uma visualização nova (coleção)
 
 1. `src/flows/<assunto>.ts` — os FlowSpecs.
