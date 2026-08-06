@@ -397,6 +397,255 @@ const ladoForma: FlowSpec = {
   ],
 };
 
+/**
+ * O mapa do próprio debate — porque o comparativo lado a lado tem um efeito
+ * colateral: cada coluna induz o leitor a achar que só existe a leitura
+ * dela. Este mapa mostra a disputa: as evidências textuais de Marx no topo
+ * (o MESMO capítulo com as duas vozes, cada uma puxando para um lado), as
+ * duas teses, a camada meta — a montagem de Engels, a moeda sem lastro, o
+ * canteiro da MEGA² — e, no fundo, a premissa que os dois lados dividem e
+ * que é a única coisa que o mapa de fato derruba: a de que existe um Marx
+ * acabado para se ter razão com ele.
+ */
+
+/** O vermelho de quem discorda — o mesmo do mapa da prova do puruṣa. */
+const ATTACK = "#b04a3e";
+
+export const duasVozes: FlowSpec = {
+  slug: "duas-vozes",
+  title: "as duas vozes de Marx",
+  script: "M ‖ M",
+  subtitle:
+    "O mapa do debate: o mesmo capítulo puxado para dois lados, a camada meta que o cerca, e a premissa que ninguém sustenta.",
+  blurb:
+    "Não é Marx contra Heinrich: é o texto contra a própria univocidade. As evidências se repartem, Engels e a moeda sem lastro entram na briga, e a MEGA² ataca o que os dois lados pressupõem — que exista um Marx acabado.",
+  footer: [
+    "o texto oferece as duas vozes; não oferece o árbitro",
+    "A diferença importa quando se desce dela — teoria da crise, problema da transformação, o alvo da política. Mas quem reivindica 'o' Marx reivindica algo que o canteiro aberto da MEGA² nega a todos.",
+  ],
+  groups: [
+    {
+      id: "texto",
+      label: "as duas vozes no texto",
+      sub: "o mesmo capítulo primeiro, com todas as letras",
+    },
+  ],
+  steps: [
+    {
+      ids: ["e-gallerte", "e-ouro", "e-fantasma", "e-fetiche"],
+      note: "O capítulo primeiro fala duas línguas: 'geleia de trabalho cristalizada' e dinheiro-ouro de um lado; 'objetividade fantasmagórica' e fetiche do outro. Ambas literais.",
+    },
+    {
+      ids: ["tese-substancia", "tese-forma"],
+      note: "Cada tese colhe as suas passagens e lê o resto como metáfora. É o mecanismo normal de toda leitura — e é o que este mapa põe à vista.",
+    },
+    {
+      ids: ["engels", "fiat", "mega"],
+      note: "A camada meta: Engels consagrou uma das leituras editando manuscritos inacabados; a moeda sem lastro cortou a âncora do ouro; e a MEGA² reabriu a edição inteira.",
+    },
+    {
+      ids: ["premissa"],
+      note: "No fundo, a premissa que os dois lados dividem: a de que existe um Marx unívoco para se ter razão com ele. É a única tese que o mapa derruba de verdade.",
+    },
+  ],
+  nodes: [
+    {
+      id: "e-gallerte",
+      script: "„Gallerte“",
+      label: "a geleia de trabalho",
+      gloss: "'mero coágulo de trabalho humano'",
+      detail:
+        "Abstraído o valor de uso, resta ao produto ser 'cristalização' de trabalho indiferenciado. A voz da substância, no texto, com todas as letras.",
+      accent: V.valor,
+      variant: "compact",
+      rank: 0,
+      column: -3,
+      group: "texto",
+    },
+    {
+      id: "e-ouro",
+      script: "Au",
+      label: "o dinheiro-mercadoria",
+      gloss: "a medida ancorada no ouro",
+      detail:
+        "Marx amarrou a medida do valor a uma mercadoria-dinheiro. Textualmente, favorece a leitura tradicional — e é a âncora que a história depois cortou.",
+      accent: V.dinheiro,
+      variant: "compact",
+      rank: 0,
+      column: -1,
+      group: "texto",
+    },
+    {
+      id: "e-fantasma",
+      script: "„Gespenst“",
+      label: "a objetividade fantasmagórica",
+      gloss: "'nem um átomo de matéria natural'",
+      detail:
+        "O mesmo capítulo: a objetividade do valor é 'fantasmagórica' e só existe na relação social entre mercadorias. A voz da forma, igualmente literal.",
+      accent: V.maisvalia,
+      variant: "compact",
+      rank: 0,
+      column: 1,
+      group: "texto",
+    },
+    {
+      id: "e-fetiche",
+      script: "ƒ",
+      label: "o fetiche",
+      gloss: "cap. 1.4: a relação que vira coisa",
+      detail:
+        "Se o valor fosse propriedade natural do produto, o fetichismo não seria segredo nenhum. O capítulo só faz sentido com o valor como forma social.",
+      accent: V.maisvalia,
+      variant: "compact",
+      rank: 0,
+      column: 3,
+      group: "texto",
+    },
+    {
+      id: "tese-substancia",
+      script: "S",
+      label: "substância produzida",
+      gloss: "a leitura tradicional",
+      detail:
+        "O trabalho deposita valor na coisa; o mercado depois o realiza. Sustentou o marxismo de movimento operário — o produtor reclamando o que já é seu — e colhe as suas passagens lendo as outras como metáfora.",
+      accent: V.valor,
+      rank: 1,
+      column: -2,
+    },
+    {
+      id: "tese-forma",
+      script: "F",
+      label: "forma constituída",
+      gloss: "a Nova Leitura",
+      detail:
+        "O valor só vem a ser na validação monetária. Backhaus, Reichelt, Heinrich: menos ontologia do trabalho, mais teoria da forma social — e colhe as SUAS passagens, lendo as outras como resíduo ricardiano.",
+      accent: V.maisvalia,
+      rank: 1,
+      column: 2,
+    },
+    {
+      id: "engels",
+      script: "E",
+      label: "a montagem de Engels",
+      gloss: "livros II–III + prefácios",
+      detail:
+        "Engels editou manuscritos inacabados e os enquadrou na narrativa lógico-histórica da 'produção mercantil simples'. A leitura tradicional herdou o enquadre junto com o texto — força e fraqueza dela.",
+      accent: V.constante,
+      variant: "compact",
+      rank: 2,
+      column: -3,
+    },
+    {
+      id: "fiat",
+      script: "1971",
+      label: "a moeda sem lastro",
+      gloss: "o ouro sai de cena",
+      detail:
+        "Com dinheiro fiduciário e de crédito, 'valor medido por uma mercadoria' perde o chão. A atualização histórica puxa para o lado da forma — o argumento favorito de Heinrich.",
+      accent: V.dinheiro,
+      variant: "compact",
+      rank: 2,
+      column: -1,
+    },
+    {
+      id: "mega",
+      script: "MEGA²",
+      label: "o canteiro aberto",
+      gloss: "o texto que não parou",
+      detail:
+        "As edições históricas mostram Marx reescrevendo a forma-valor a cada edição e morrendo com o projeto em aberto. Não há versão final para ser 'a' verdadeira.",
+      accent: V.trabalho,
+      variant: "compact",
+      rank: 2,
+      column: 1,
+    },
+    {
+      id: "premissa",
+      script: "M!",
+      label: "o Marx unívoco",
+      gloss: "a premissa que os dois lados dividem",
+      detail:
+        "Cada leitura fala como se houvesse UM Marx acabado do seu lado. É a única coisa que o texto, aberto como ficou, não oferece a ninguém — e a única tese que este mapa derruba.",
+      accent: V.capital,
+      round: true,
+      rank: 3,
+      column: 0,
+    },
+  ],
+  edges: [
+    {
+      from: "e-gallerte",
+      to: "tese-substancia",
+      kind: "supports",
+      accent: V.valor,
+    },
+    {
+      from: "e-ouro",
+      to: "tese-substancia",
+      kind: "supports",
+      label: "no texto",
+      accent: V.dinheiro,
+    },
+    {
+      from: "e-fantasma",
+      to: "tese-forma",
+      kind: "supports",
+      accent: V.maisvalia,
+    },
+    {
+      from: "e-fetiche",
+      to: "tese-forma",
+      kind: "supports",
+      label: "exige",
+      accent: V.maisvalia,
+    },
+    {
+      from: "engels",
+      to: "tese-substancia",
+      kind: "supports",
+      label: "consagrou",
+      accent: V.constante,
+    },
+    {
+      from: "fiat",
+      to: "tese-substancia",
+      kind: "attacks",
+      label: "corta a âncora",
+      accent: ATTACK,
+    },
+    {
+      from: "mega",
+      to: "engels",
+      kind: "attacks",
+      label: "reabre a edição",
+      accent: ATTACK,
+      fromSide: "b",
+      toSide: "b",
+    },
+    {
+      from: "tese-substancia",
+      to: "premissa",
+      kind: "supports",
+      label: "pressupõe",
+      accent: V.valor,
+    },
+    {
+      from: "tese-forma",
+      to: "premissa",
+      kind: "supports",
+      label: "pressupõe",
+      accent: V.maisvalia,
+    },
+    {
+      from: "mega",
+      to: "premissa",
+      kind: "attacks",
+      label: "não existe",
+      accent: ATTACK,
+    },
+  ],
+};
+
 export const produzidoVsConstituido: CompareSpec = {
   kind: "compare",
   slug: "produzido-vs-constituido",
