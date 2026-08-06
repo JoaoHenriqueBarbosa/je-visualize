@@ -17,6 +17,36 @@
  *                  arestas derivados da geometria final
  */
 
+/**
+ * O motor de layout — sete passadas, todas sobre medidas reais.
+ *
+ * Entrada: o spec declarativo e as caixas medidas no DOM (Measurer). Saída:
+ * retângulos absolutos para nós e molduras, e lados de âncora para as
+ * arestas. O React Flow recebe tudo resolvido e não decide nada.
+ *
+ * As passadas, em ordem e por quê nesta ordem:
+ *   1. ordem     — ranks derivados das arestas de fluxo; sem eles não há
+ *                  linha nem coluna para nada.
+ *   2. grade     — alturas de linha e larguras de coluna pelos máximos.
+ *   3. vãos      — corredores entre linhas/colunas dimensionados pelos
+ *                  rótulos que vão morar neles.
+ *   4. molduras  — padding de grupo SOMADO aos vãos de borda; depois disso
+ *                  os vãos não mudam mais.
+ *   5. posições  — soma acumulada; primeiro momento com coordenada absoluta.
+ *   6. molduras finais — derivadas dos membros posicionados (wrapGroups).
+ *   7. compactação — recolhe a folga que a passada 2 cria quando um cartão
+ *                  `full` infla uma coluna de `compact`s.
+ *
+ * Invariantes que a auditoria cobra e este arquivo promete:
+ *   - nós nunca se sobrepõem;
+ *   - moldura contém todos os seus membros e nenhum estranho;
+ *   - rótulo de aresta tem corredor próprio, nunca fica sobre cartão.
+ *
+ * O que o motor NÃO promete: beleza. Topologia ruim (ramos irmãos
+ * empilhados, colunas mal distribuídas) sai geometricamente válida e feia —
+ * o conserto é no spec, e o olho no PNG é parte do processo.
+ */
+
 import type { EdgeSpec, FlowSpec, Rect, Side, Size } from "./types";
 import { edgeKey } from "./types";
 
@@ -65,6 +95,11 @@ export function layout(input: LayoutInput): LayoutResult {
   // Relaxamento de caminho mais longo sobre as arestas de fluxo. Nós com
   // `rank` declarado ficam pinados: são fileiras de irmãos que o autor
   // posicionou de propósito.
+  //
+  // Só arestas `flow` participam: `aside` não avança camada por definição,
+  // `feedback` criaria ciclo e travaria o relaxamento, `illumine` é
+  // presença, não causa. Se um flow parecer "achatado", quase sempre é
+  // aresta que devia ser `flow` declarada como outra coisa.
   const pinned = new Set(
     spec.nodes.filter((n) => n.rank !== undefined).map((n) => n.id)
   );
@@ -139,7 +174,12 @@ export function layout(input: LayoutInput): LayoutResult {
     if (c0 !== c1) {
       const lo = Math.min(c0, c1);
       const hi = Math.max(c0, c1);
-      // Um rótulo que cruza N corredores pode se espalhar por eles.
+      // Um rótulo que cruza N corredores pode se espalhar por eles: cada
+      // corredor reserva a sua fração. A contrapartida mora na passada 7 —
+      // como a reserva é fracionada, a compactação precisa reavaliar o vão
+      // INTEIRO de cada rótulo antes de encolher qualquer fronteira, senão
+      // espreme a peça única contra os cartões (aconteceu; a auditoria
+      // reprovou três flows e a restrição extra entrou lá).
       const share = (label.w + LABEL_AIR * 2) / (hi - lo);
       for (let c = lo; c < hi; c++) gapX[c] = Math.max(gapX[c], share);
     }

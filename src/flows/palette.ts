@@ -1,5 +1,15 @@
-/** Paleta comum. Cada princípio guarda a mesma cor entre flows diferentes,
- *  então buddhi é sempre o mesmo amarelo em qualquer diagrama. */
+/**
+ * Paleta do sāṃkhya — dado, não tema.
+ *
+ * Cada princípio guarda a mesma cor entre flows diferentes: buddhi é o mesmo
+ * amarelo no diagrama dos tattvas e no do antaḥkaraṇa, e sattva divide o
+ * amarelo com buddhi de propósito (buddhi é o evoluto mais sáttvico). Rajas
+ * e ahaṃkāra dividem o vermelho pela mesma razão.
+ *
+ * Por isso accents entram pelo spec e não pelo CSS do tema: são identidade
+ * dos conceitos, atravessam diagramas, e mudariam de significado se cada
+ * tema pudesse redefini-los.
+ */
 export const P = {
   purusha: "#ece6d8",
   prakriti: "#8a6f9c",

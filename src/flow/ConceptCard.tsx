@@ -9,6 +9,10 @@
 import type { NodeSpec } from "./types";
 
 export default function ConceptCard({ node }: { node: NodeSpec }) {
+  // Accent é DADO do flow, não tema: o mesmo princípio guarda a mesma cor em
+  // qualquer diagrama (ver flows/palette.ts). Por isso pode viver inline —
+  // ao contrário das cores de tema, que já vazaram uma vez quando moravam
+  // em JS. O fallback quase nunca aparece: todo flow declara accents.
   const accent = node.accent ?? "#c9c2b2";
   const compact = node.variant === "compact";
 
@@ -18,7 +22,7 @@ export default function ConceptCard({ node }: { node: NodeSpec }) {
       style={{ borderColor: accent }}
     >
       {node.script && (
-        <div className="concept-deva" style={{ color: accent }}>
+        <div className="concept-script" style={{ color: accent }}>
           {node.script}
         </div>
       )}

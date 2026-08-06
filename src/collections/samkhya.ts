@@ -1,3 +1,8 @@
+/**
+ * A coleção fundadora. Os textos daqui moravam em JSX na primeira Home;
+ * virar dado foi o que permitiu a página de coleção ser genérica.
+ */
+
 import type { CollectionSpec } from "./types";
 import { antahkarana } from "../flows/antahkarana";
 import { tattvas } from "../flows/tattvas";

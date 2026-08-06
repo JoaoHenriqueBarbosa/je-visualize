@@ -1,3 +1,14 @@
+/**
+ * Os 25 tattvas — o flow mais denso, e o que ensinou topologia ao projeto.
+ *
+ * A lição, gravada aqui porque foi aqui que custou: as duas cadeias que
+ * saem de ahaṃkāra (vaikṛta → manas → indriyas e bhūtādi → tanmātras →
+ * mahābhūtas) são RAMOS IRMÃOS e correm em ranks iguais, colunas opostas.
+ * A primeira versão as empilhava em ranks sequenciais, e o sintoma era uma
+ * aresta atravessando meio canvas vazio. Sequência de rank deve significar
+ * sequência no assunto; bifurcação pede paralelo.
+ */
+
 import type { EdgeSpec, NodeSpec, FlowSpec } from "../flow/types";
 import { P } from "./palette";
 

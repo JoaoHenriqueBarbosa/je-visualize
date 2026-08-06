@@ -1,3 +1,12 @@
+/**
+ * Os três flows curtos do sāṃkhya: triguṇa, pramāṇa, kaivalya.
+ *
+ * Vivem num arquivo só porque são pequenos e mudam juntos — quando a
+ * terminologia de um se ajusta, os outros dois costumam precisar do mesmo
+ * ajuste. Se algum crescer a ponto de ganhar grupos e fileiras, promove-se
+ * a arquivo próprio, como tattvas.ts.
+ */
+
 import type { FlowSpec } from "../flow/types";
 import { P } from "./palette";
 

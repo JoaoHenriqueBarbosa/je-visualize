@@ -1,3 +1,16 @@
+/**
+ * Portas AND e OR — os dois flows são deliberadamente o MESMO desenho.
+ *
+ * Entradas, porta, saída, nota física à direita, tabela verdade embaixo:
+ * a estrutura idêntica é o argumento, porque a diferença entre as portas
+ * não está na forma do diagrama e sim no conteúdo — série vs paralelo, um
+ * único 1 vs um único 0. Quem abre os dois lado a lado vê isso sem que
+ * nenhum texto precise dizer.
+ *
+ * As entradas A e B são compartilhadas via spread (`...entradas`) para que
+ * essa igualdade não dependa de disciplina: é o mesmo objeto.
+ */
+
 import type { FlowSpec, NodeSpec } from "../flow/types";
 
 const E = {

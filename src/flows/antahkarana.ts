@@ -1,3 +1,15 @@
+/**
+ * antaḥkaraṇa — o diagrama que fundou o projeto.
+ *
+ * A forma diz o argumento: o eixo vertical é o trajeto da percepção
+ * (indriya → manas → buddhi → ahaṃkāra), citta fica AO LADO porque depósito
+ * não é etapa, e ātman fica FORA da moldura porque não é camada — a aresta
+ * illumine até buddhi é o cidābhāsa, presença sem causalidade.
+ *
+ * indriya também fica fora da moldura: os sentidos alimentam o instrumento
+ * interno, não o compõem.
+ */
+
 import type { FlowSpec } from "../flow/types";
 import { P } from "./palette";
 

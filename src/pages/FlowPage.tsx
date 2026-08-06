@@ -1,3 +1,12 @@
+/**
+ * Página de um diagrama. Resolve coleção e flow pelos dois params da rota;
+ * o FlowCanvas faz o resto (medir, posicionar, desenhar).
+ *
+ * A resolução é em dois passos de propósito — primeiro a coleção, depois o
+ * flow DENTRO dela — para que slugs de flow não precisem ser globalmente
+ * únicos: /samkhya/guna e uma futura /musica/guna podem coexistir.
+ */
+
 import { Link, useParams } from "react-router-dom";
 import FlowCanvas from "../flow/FlowCanvas";
 import { collectionBySlug, flowIn } from "../collections";

@@ -1,3 +1,13 @@
+/**
+ * A raiz. Sempre theme-root, nunca o tema de uma coleção: este índice não
+ * pertence a assunto nenhum e precisa sobreviver a qualquer assunto novo —
+ * inclusive um sem grafia nativa, por isso o script do card é condicional.
+ *
+ * O .wrap interno existe porque o tema é escopado na .page: é ela que pinta
+ * o fundo de borda a borda, e a medida de leitura fica no invólucro. Fundir
+ * os dois devolve a faixa sem cor que já apareceu uma vez em produção.
+ */
+
 import { Link } from "react-router-dom";
 import { collections } from "../collections";
 

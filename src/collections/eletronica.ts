@@ -1,3 +1,9 @@
+/**
+ * A segunda coleção — nascida como prova de que a generalização funciona:
+ * sem grafia nativa (script ausente), tema oposto ao do sāṃkhya, mesmo
+ * motor. O footer registra isso de propósito.
+ */
+
 import type { CollectionSpec } from "./types";
 import { portaAnd, portaOr } from "../flows/eletronica";
 

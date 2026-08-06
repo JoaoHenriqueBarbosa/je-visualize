@@ -1,3 +1,13 @@
+/**
+ * Página de uma coleção: cabeçalho com a voz do assunto e a grade de cards
+ * dos diagramas. Todo o conteúdo vem do CollectionSpec — este componente
+ * não sabe nada de sāṃkhya nem de eletrônica, e é essa ignorância que deixa
+ * a próxima coleção entrar sem tocar aqui.
+ *
+ * O tema da coleção (spec.theme) entra como classe na .page; a rota de erro
+ * cai em theme-root porque não há coleção de quem herdar aparência.
+ */
+
 import { Link, useParams } from "react-router-dom";
 import { collectionBySlug } from "../collections";
 
