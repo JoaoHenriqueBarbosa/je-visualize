@@ -272,7 +272,11 @@ export default function FlowCanvas({
   }, [spec.slug]);
 
   return (
-    <div className={`flow-canvas ${sim.active ? "sim" : ""}`} data-viz={spec.slug}>
+    <div
+      className={`flow-canvas ${sim.active ? "sim" : ""}`}
+      data-viz={spec.slug}
+      data-viz-kind="flow"
+    >
       {stage}
       {graph && (
         <ReactFlow

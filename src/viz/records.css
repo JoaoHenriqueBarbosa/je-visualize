@@ -1,0 +1,214 @@
+/**
+ * Estrutura das vistas de registros — mesma regra do flow.css: nenhuma cor
+ * própria, tudo por variável de tema. As únicas cores inline vêm do dado
+ * (accents de opções de select), como em todo o site.
+ */
+
+.records {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--sp-8) var(--sp-6) var(--sp-7);
+}
+
+.records-wrap {
+  max-width: var(--page-w-wide);
+  margin: 0 auto;
+}
+
+/* ------------------------------------------------------ seletor de vistas */
+
+.records-views {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-6);
+}
+
+.records-view {
+  padding: var(--sp-2) var(--sp-4);
+  border: var(--bw) solid var(--line);
+  border-radius: var(--card-radius, var(--radius-sm));
+  background: var(--card-bg);
+  color: var(--dim);
+  font-family: var(--font-display, var(--font-body));
+  font-size: var(--fs-sm);
+  letter-spacing: var(--ls-wide);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.records-view:hover,
+.records-view.on {
+  color: var(--ink);
+  border-color: var(--line-hover);
+  background: var(--card-bg-hover, var(--card-bg));
+}
+
+/* ----------------------------------------------------------------- tabela */
+
+.rec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-base);
+}
+
+.rec-table th {
+  text-align: left;
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: var(--bw) solid var(--rule-strong, var(--rule));
+  font-family: var(--font-display, var(--font-body));
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: var(--ls-wider);
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.rec-table td {
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: var(--bw) solid var(--rule);
+  color: var(--body);
+  white-space: nowrap;
+}
+
+.rec-table td.rec-title {
+  color: var(--ink);
+  font-family: var(--font-display, var(--font-body));
+}
+
+.rec-table tr:hover td {
+  background: var(--card-bg-hover, var(--card-bg));
+}
+
+.rec-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: var(--sp-2);
+  vertical-align: baseline;
+}
+
+/* ----------------------------------------------------------------- kanban */
+
+.rec-kanban {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-4);
+}
+
+.rec-col {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--sp-4);
+  border: var(--bw) var(--frame-style, dashed) var(--frame-border);
+  border-radius: var(--radius-lg);
+  background: var(--frame-bg, transparent);
+}
+
+.rec-col-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+  font-family: var(--font-display, var(--font-body));
+  font-size: var(--fs-sm);
+  letter-spacing: var(--ls-widest);
+  text-transform: uppercase;
+  color: var(--legend);
+}
+
+.rec-col-count {
+  font-size: var(--fs-2xs);
+  color: var(--faint);
+}
+
+.rec-card {
+  padding: var(--sp-3) var(--sp-4);
+  border: var(--bw) solid var(--line);
+  border-left: var(--bw-accent) solid var(--line-hover);
+  border-radius: var(--card-radius, var(--radius-sm));
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow, none);
+}
+
+.rec-card + .rec-card {
+  margin-top: var(--sp-3);
+}
+
+.rec-card-title {
+  font-size: var(--fs-md);
+  color: var(--ink);
+  font-family: var(--font-display, var(--font-body));
+}
+
+.rec-card-line {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-xs);
+  color: var(--body);
+}
+
+.rec-card-line span {
+  color: var(--faint);
+}
+
+/* ------------------------------------------------------------------ gantt */
+
+.rec-gantt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.rec-gantt-axis,
+.rec-gantt-row {
+  display: grid;
+  grid-template-columns: minmax(120px, max-content) 1fr;
+  gap: var(--sp-4);
+  align-items: center;
+}
+
+.rec-gantt-label {
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+  font-family: var(--font-display, var(--font-body));
+  white-space: nowrap;
+}
+
+.rec-gantt-track {
+  position: relative;
+  height: 26px;
+}
+
+.rec-gantt-axis .rec-gantt-track {
+  height: 18px;
+}
+
+.rec-gantt-tick {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--ls-tight);
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+.rec-gantt-grid {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: var(--bw) dashed var(--rule);
+}
+
+.rec-gantt-bar {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  min-width: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--line-hover);
+  opacity: 0.85;
+}

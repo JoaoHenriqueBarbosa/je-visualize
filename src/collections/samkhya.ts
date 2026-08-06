@@ -8,6 +8,7 @@ import { antahkarana } from "../flows/antahkarana";
 import { tattvas } from "../flows/tattvas";
 import { guna, pramana, kaivalya } from "../flows/small";
 import { tattvabhyasa } from "../flows/viveka";
+import { darsanas } from "../flows/darsanas";
 
 export const samkhya: CollectionSpec = {
   slug: "samkhya",
@@ -23,5 +24,5 @@ export const samkhya: CollectionSpec = {
   footer:
     "Ordem de leitura sugerida: do problema à cosmologia ao detalhe — e a dinâmica por último.",
   /** Do problema à cosmologia ao detalhe; a dinâmica fecha. */
-  vizes: [kaivalya, tattvas, guna, antahkarana, pramana, tattvabhyasa],
+  vizes: [kaivalya, tattvas, guna, antahkarana, pramana, tattvabhyasa, darsanas],
 };

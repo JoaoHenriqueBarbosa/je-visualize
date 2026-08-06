@@ -49,8 +49,9 @@ const defined = (css) => {
 
 // Estruturas e quem responde por elas.
 const pagesCss = read("src/styles/pages.css");
-const canvasCss = read("src/flow/flow.css");
-// Estruturas de kinds futuros (records, scale...) entram em canvasCss.
+const canvasCss =
+  read("src/flow/flow.css") + read("src/viz/records.css");
+// Estruturas de kinds futuros entram na soma acima.
 
 const pagesVars = required(pagesCss);
 const canvasVars = required(canvasCss);

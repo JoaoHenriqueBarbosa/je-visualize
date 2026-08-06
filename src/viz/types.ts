@@ -92,7 +92,53 @@ export interface CompareSpec {
   sides: FlowSpec[];
 }
 
-export type VizSpec = FlowSpec | CompareSpec | MachineSpec;
+/**
+ * Um campo de uma coleção de registros. `select` carrega opções com accent —
+ * é o que pinta cartões de kanban e barras de gantt por valor.
+ */
+export interface FieldSpec {
+  id: string;
+  label: string;
+  type: "text" | "number" | "select" | "range";
+  /** Para `select`: os valores possíveis, cada um com sua cor. */
+  options?: { id: string; label?: string; accent?: string }[];
+  /** Para `number`/`range` em anos: formata negativo como a.C. */
+  era?: boolean;
+}
+
+/** Uma linha. `range` é [início, fim]; o resto é escalar. */
+export type RecordRow = {
+  id: string;
+  [field: string]: string | number | [number, number] | undefined;
+};
+
+export type RecordViewSpec =
+  | { type: "table"; label?: string }
+  | { type: "kanban"; label?: string; groupBy: string }
+  | { type: "gantt"; label?: string; range: string; accentBy?: string };
+
+/**
+ * Registros: campos tipados + linhas + vistas. Tabela, kanban e gantt são
+ * PROJEÇÕES do mesmo dado — declarar uma vista nova nunca duplica registro.
+ * (Calendário entra nesta união quando chegar o primeiro assunto com datas
+ * de dia — a união não lista intenções.)
+ */
+export interface RecordsSpec {
+  kind: "records";
+  slug: string;
+  title: string;
+  script?: string;
+  subtitle: string;
+  blurb: string;
+  footer?: string[];
+  /** O campo exibido como título do registro (cartões de kanban, gantt). */
+  titleField: string;
+  fields: FieldSpec[];
+  rows: RecordRow[];
+  views: RecordViewSpec[];
+}
+
+export type VizSpec = FlowSpec | CompareSpec | MachineSpec | RecordsSpec;
 
 export type VizKind = NonNullable<VizSpec["kind"]>;
 
@@ -116,6 +162,10 @@ export const vizMeta = (v: VizSpec): string => {
     case "machine": {
       const m = v as MachineSpec;
       return `${m.states.length} estados · ${m.transitions.length} transições`;
+    }
+    case "records": {
+      const r = v as RecordsSpec;
+      return `${r.rows.length} registros · ${r.views.length} vistas`;
     }
   }
 };

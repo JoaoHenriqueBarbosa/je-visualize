@@ -69,6 +69,7 @@ const readScenes = () => {
   const scenes = [];
   for (const canvas of document.querySelectorAll("[data-viz]")) {
     const viz = canvas.getAttribute("data-viz");
+    const kind = canvas.getAttribute("data-viz-kind") ?? "flow";
     const nodes = [];
     const groups = [];
     for (const el of canvas.querySelectorAll(".react-flow__node")) {
@@ -84,7 +85,7 @@ const readScenes = () => {
       labels.push({ id: edge?.getAttribute("data-id") ?? "?", ...rect(el) });
     }
 
-    scenes.push({ viz, nodes, groups, labels });
+    scenes.push({ viz, kind, nodes, groups, labels });
   }
   return scenes;
 };
@@ -143,18 +144,37 @@ const run = async () => {
   for (const slug of routes) {
     warnings.length = 0;
     await page.goto(`${BASE}/${slug}`, { waitUntil: "networkidle" });
-    await page.waitForSelector(".react-flow__node", { timeout: 10000 });
+    // Cada canvas pronto do seu jeito: flow tem nós do React Flow, registros
+    // têm linhas/cartões. Esperar todos antes de ler qualquer cena.
+    await page.waitForSelector("[data-viz]", { timeout: 10000 });
+    await page.waitForFunction(
+      () =>
+        [...document.querySelectorAll("[data-viz]")].every((c) =>
+          (c.getAttribute("data-viz-kind") ?? "flow") === "records"
+            ? c.querySelector("[data-rec]")
+            : c.querySelector(".react-flow__node")
+        ),
+      { timeout: 10000 }
+    );
     // fitView anima; esperar assentar antes de medir.
     await page.waitForTimeout(900);
 
     const scenes = await page.evaluate(readScenes);
     const problems = [];
-    let totals = { nodes: 0, groups: 0, labels: 0, simStates: 0, machineFired: 0 };
+    let totals = {
+      nodes: 0,
+      groups: 0,
+      labels: 0,
+      simStates: 0,
+      machineFired: 0,
+      recViews: 0,
+    };
     // Página sem cena ou cena vazia é falha, não sucesso: um dist velho sem
     // data-viz já produziu um "ok · 0 nós" falso-verde aqui.
     if (!scenes.length) problems.push("nenhuma cena encontrada (data-viz)");
     for (const s of scenes)
-      if (!s.nodes.length) problems.push(`cena "${s.viz}" sem nós`);
+      if (s.kind !== "records" && !s.nodes.length)
+        problems.push(`cena "${s.viz}" sem nós`);
     // Numa página de um canvas só, o prefixo de cena é ruído.
     const tagOf = (viz) => (scenes.length > 1 ? `[${viz}] ` : "");
 
@@ -308,6 +328,37 @@ const run = async () => {
           }
         }
       }
+
+      // 7. registros — troca cada vista de verdade e cobra: todos os
+      // registros presentes e nenhum estouro horizontal.
+      const recMeta = await page.evaluate(
+        (v) => window.__vizRegistry?.[v]?.records ?? null,
+        viz
+      );
+      if (recMeta) {
+        for (const view of recMeta.views) {
+          const btn = `[data-viz="${viz}"] .records-view[data-view="${view}"]`;
+          if (recMeta.views.length > 1) {
+            await page.click(btn);
+            await page.waitForTimeout(120);
+          }
+          totals.recViews += 1;
+
+          const state = await page.evaluate((v) => {
+            const el = document.querySelector(`[data-viz="${v}"]`);
+            return {
+              rows: el?.querySelectorAll("[data-rec]").length ?? 0,
+              overflow: el ? el.scrollWidth > el.clientWidth + 2 : false,
+            };
+          }, viz);
+          if (state.rows !== recMeta.rows)
+            problems.push(
+              `${tagOf(viz)}vista "${view}": ${state.rows} registros no DOM, spec tem ${recMeta.rows}`
+            );
+          if (state.overflow)
+            problems.push(`${tagOf(viz)}vista "${view}": estouro horizontal`);
+        }
+      }
     }
 
     await page.screenshot({ path: `${OUT}/${slug}.png`, fullPage: true });
@@ -318,6 +369,7 @@ const run = async () => {
         `${totals.groups} molduras · ${totals.labels} rótulos` +
         (totals.simStates ? ` · sim ${totals.simStates} estados` : "") +
         (totals.machineFired ? ` · mq ${totals.machineFired} eventos` : "") +
+        (totals.recViews ? ` · reg ${totals.recViews} vistas` : "") +
         (scenes.length > 1 ? ` · ${scenes.length} cenas` : "")
     );
     for (const p of problems) console.log(`        · ${p}`);
